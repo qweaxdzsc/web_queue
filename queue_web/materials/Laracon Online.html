@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!-- saved from url=(0025)https://laracon.net/login -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="1t7Octnas4hllCJMNjFwpP7yYxb6pLJOJmnX0G0B">
+
+        <title>Laracon Online</title>
+
+        <!-- Fonts -->
+        <link href="./Laracon Online_files/css" rel="stylesheet">
+
+        <!-- Styles -->
+        <link rel="stylesheet" href="./Laracon Online_files/app.css">
+
+        <style>[wire\:loading] {display: none;}[wire\:offline] {display: none;}[wire\:dirty]:not(textarea):not(input):not(select) {display: none;}</style>
+
+        <!-- Scripts -->
+        <script src="./Laracon Online_files/alpine.js.下载" defer=""></script>
+    </head>
+    <body class="font-sans antialiased">
+    <div class="min-h-screen bg-gray-100">
+        <!-- Page Content -->
+        <main>
+            <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
+    <div>
+        <img src="./Laracon Online_files/logo-hz.png" alt="" style="width: 200px;">
+    </div>
+
+    <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg ">
+        <form method="POST" action="https://laracon.net/login">
+            <input type="hidden" name="_token" value="1t7Octnas4hllCJMNjFwpP7yYxb6pLJOJmnX0G0B">
+            <div>
+                 <label class="block font-medium text-sm text-gray-700">
+    Email
+</label>
+ 
+                 <input class="form-input rounded-md shadow-sm block mt-1 w-full" type="email" name="email" required="required" autofocus="autofocus">
+ 
+            </div>
+
+            <div class="mt-4">
+                 <label class="block font-medium text-sm text-gray-700">
+    Password
+</label>
+ 
+                 <input class="form-input rounded-md shadow-sm block mt-1 w-full" type="password" name="password" required="required">
+ 
+            </div>
+
+            <div class="block mt-4">
+                <label class="flex items-center">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-end mt-4">
+                                    <a class="underline text-sm text-gray-600 hover:text-gray-900" href="https://laracon.net/forgot-password">
+                        Forgot your password?
+                    </a>
+                
+                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150 ml-4">
+    Login
+</button>
+ 
+            </div>
+        </form>
+    </div>
+</div>
+        </main>
+    </div>
+
+    
+    <script src="./Laracon Online_files/livewire.js.下载" data-turbolinks-eval="false"></script><script data-turbolinks-eval="false">window.livewire = new Livewire();window.livewire_app_url = '';window.livewire_token = '1t7Octnas4hllCJMNjFwpP7yYxb6pLJOJmnX0G0B';/* Make Alpine wait until Livewire is finished rendering to do its thing. */window.deferLoadingAlpine = function (callback) {window.addEventListener('livewire:load', function () {callback();});};document.addEventListener("DOMContentLoaded", function () {window.livewire.start();});var firstTime = true;document.addEventListener("turbolinks:load", function() {/* We only want this handler to run AFTER the first load. */if(firstTime) {firstTime = false;return;}window.livewire.restart();});document.addEventListener("turbolinks:before-cache", function() {document.querySelectorAll('[wire\\:id]').forEach(function(el) {const component = el.__livewire;const dataObject = {data: component.data,events: component.events,children: component.children,checksum: component.checksum,name: component.name,errorBag: component.errorBag,redirectTo: component.redirectTo,};el.setAttribute('wire:initial-data', JSON.stringify(dataObject));});});</script>
+    
+
+ 
+</body></html>
