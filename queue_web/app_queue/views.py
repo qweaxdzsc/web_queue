@@ -6,8 +6,8 @@ import threading
 
 # Create your views here.
 def index(request):
-    mission = models.WaitList.objects.all()
-    print('index:', mission)
+    # mission = models.WaitList.objects.all()
+    # print('index:', mission)
     return render(request, 'index.html')
 
 
@@ -22,15 +22,6 @@ def add_project(request):
     utils.db_add_one(models.WaitList, data_dict)
 
     return render(request, 'add_project.html')
-
-
-def view_history(request):
-    return render(request, 'view_history.html')
-
-
-def setting(request):
-    pass
-    return render(request, 'setting.html')
 
 
 def receive_result(request):

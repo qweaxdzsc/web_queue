@@ -10,11 +10,32 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
           integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <title>{% block title %}base{% endblock %}</title>
-    <link href="{% static 'css/login.css' %}" rel="stylesheet"/>
     {% block css %}{% endblock %}
 </head>
 <body>
-{% block content %}{% endblock %}
+<nav class="navbar navbar-expand-lg navbar-light navbar-dark bg-dark">
+    <a class="navbar-brand mb-0 h1" href="/">Estra队列系统</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">语言选择</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="#">English</a>
+                    <a class="dropdown-item" href="#">Chinese</a>
+                </div>
+            </li>
+        </ul>
+        {% block UserInfo %}
+        {% endblock UserInfo%}
+    </div>
+</nav>
+{% block content %}{% endblock content%}
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"

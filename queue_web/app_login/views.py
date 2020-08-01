@@ -3,9 +3,9 @@ from django.shortcuts import redirect
 
 
 # Create your views here.
-def index(request):
-    pass
-    return render(request, 'index.html')
+# def index(request):
+#     pass
+#     return render(request, 'index.html')
 
 
 def login(request):
