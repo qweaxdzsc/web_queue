@@ -1,0 +1,43 @@
+
+
+.btn_sign_up{
+  width: 120px;
+}
+
+.block_content{
+  width: 1200px;
+  margin: 5px auto;
+  background-color: #66CCFF;
+}
+
+.block_content_left{
+  float:left;
+  width: 1000px;
+
+}
+
+.block_control{
+  height: 120px;
+
+  margin-right: 5px;
+  background-color: red;
+}
+
+.block_table{
+
+  margin-right: 5px;
+  background-color: gray;
+}
+
+.block_additional{
+  float:left;
+  width: 195px;
+  margin-left: 5px;
+  background-color: green;
+}
+
+
+
+.table_set{
+
+}

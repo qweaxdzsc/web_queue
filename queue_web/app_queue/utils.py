@@ -73,6 +73,4 @@ def able_to_run(mission):
     pass
     return bool()
 
-print('123')
-# 123
 
