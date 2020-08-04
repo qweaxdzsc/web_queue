@@ -18,9 +18,27 @@
 
 .block_control{
   height: 120px;
-
   margin-right: 5px;
-  background-color: red;
+  padding: 10px;
+  background-color: #F0F0F0;
+}
+
+.block_control .dropdown_search{
+  margin-bottom: 15px;
+}
+
+.block_control .input_search{
+  flex: none;
+  width: 200px;
+}
+
+.block_control .btn_search{
+border-radius: 0px 0.25rem 0.25rem 0px;
+}
+
+.block_control .btn_add{
+  margin-left: 500px;
+  width: 200px;
 }
 
 .block_table{

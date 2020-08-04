@@ -12,27 +12,55 @@
 {% block content %}
 <div class="block_content">
     <div class="block_content_left">
-    <div class="block_control">
-        <h1>control functions like add or search</h1>
+        <div class="block_control">
+             <div class="input-group-prepend dropdown_search">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">搜索条件
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </div>
+            <div class="input-group mb-3">
+
+                <input type="text" class="form-control input_search" aria-label="Text input with dropdown button">
+                <button class="btn btn-outline-secondary btn_search" type="button" id="button-addon2">搜索</button>
+                <button type="button" class="btn btn-outline-primary btn_add">新任务</button>
+
+            </div>
+
+        </div>
+
+        <div class="block_table">
+            <h1>Three extendable tables</h1>
+            <ul>
+                <li>Running Table</li>
+                <li>Waiting Table</li>
+                <li>History Table</li>
+            </ul>
+        </div>
     </div>
 
-    <div class="block_table">
-        <h1>Three extendable tables</h1>
-        <ul>
-            <li>Running Table</li>
-            <li>Waiting Table</li>
-            <li>History Table</li>
-        </ul>
-    </div>
-    </div>
-
-            <div class="block_additional">
+    <div class="block_additional">
         <h1>Additional content</h1>
-            <p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p>
-            <p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p>
-            <p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p><p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
+        <p>sdfsdfsdfsdf</p>
     </div>
-
 
 
 </div>
