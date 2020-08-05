@@ -33,13 +33,68 @@
 
         </div>
 
-        <div class="block_table">
-            <h1>Three extendable tables</h1>
-            <ul>
-                <li>Running Table</li>
-                <li>Waiting Table</li>
-                <li>History Table</li>
-            </ul>
+        <div class="block_table table-hover table-striped table-sm">
+            <table class="">
+                <thead class="bg-success">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for mission in running_list%}
+                <tr>
+                    <th scope="row">{{mission.id}}</th>
+                    <td>{{mission.order_id}}</td>
+                    <td>{{mission.account_email}}</td>
+                    <td>{{mission.sender_address}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <table class="">
+                <thead  class="bg-warning">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for mission in waiting_list%}
+                <tr>
+                    <th scope="row">{{mission.id}}</th>
+                    <td>{{mission.order_id}}</td>
+                    <td>{{mission.account_email}}</td>
+                    <td>{{mission.sender_address}}</td>
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+            <table class="">
+                <thead class="bg-info">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for mission in history_list%}
+                <tr>
+                    <th scope="row">{{mission.id}}</th>
+                    <td>{{mission.order_id}}</td>
+                    <td>{{mission.account_email}}</td>
+                    <td>{{mission.sender_address}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 

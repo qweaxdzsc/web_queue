@@ -6,9 +6,15 @@ import threading
 
 # Create your views here.
 def index(request):
-    # mission = models.WaitList.objects.all()
-    # print('index:', mission)
-    return render(request, 'index.html')
+    running_list = models.RunningList.objects.all()
+    waiting_list = models.WaitList.objects.all()
+    history_list = models.HistoryList.objects.all()
+    parameters = {
+        'running_list': running_list,
+        'waiting_list': waiting_list,
+        'history_list': running_list,
+    }
+    return render(request, 'index.html', parameters)
 
 
 def add_project(request):
