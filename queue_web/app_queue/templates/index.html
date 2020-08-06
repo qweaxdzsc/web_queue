@@ -2,7 +2,8 @@
 {% load static %}
 {% block title %}Estra队列系统{% endblock %}
 
-{% block css %}<link href="{% static 'css/index2.css' %}" rel="stylesheet"/>{% endblock %}
+{% block css %}
+<link href="{% static 'css/index2.css' %}" rel="stylesheet"/>{% endblock %}
 
 {% block UserInfo %}
 <form class="form-inline my-2 my-lg-0">
@@ -13,16 +14,16 @@
 <div class="block_content">
     <div class="block_content_left">
         <div class="block_control">
-             <div class="input-group-prepend dropdown_search">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">搜索条件
-                    </button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
+            <div class="input-group-prepend dropdown_search">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">搜索条件
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
                 </div>
+            </div>
             <div class="input-group mb-3">
 
                 <input type="text" class="form-control input_search" aria-label="Text input with dropdown button">
@@ -32,87 +33,119 @@
             </div>
 
         </div>
-
         <div class="block_table table-hover table-striped table-sm">
-            <table class="">
-                <thead class="bg-success">
-                <tr>
-                    <th class="item1">排队号</th>
-                    <th class="item2">账户邮箱</th>
-                    <th class="item3">任务名称</th>
-                    <th class="item4">请求者地址</th>
-                    <th class="item5">注册时间</th>
-                    <th class="item6">开始时间</th>
-                    <th class="item7">用时</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for mission in running_list%}
-                <tr>
-                    <td></td>
-                    <td>{{mission.account_email}}</td>
-                    <td>{{mission.mission_name}}</td>
-                    <td>{{mission.sender_address}}</td>
-                    <td>{{mission.register_time}}</td>
-                    <td>{{mission.start_time}}</td>
-                    <td></td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <table class="">
-                <thead  class="bg-warning">
-                <tr>
-                    <th class="item1">排队号</th>
-                    <th class="item2">账户邮箱</th>
-                    <th class="item3">任务名称</th>
-                    <th class="item4">请求者地址</th>
-                    <th class="item5">注册时间</th>
-                    <th class="item6">开始时间</th>
-                    <th class="item7">用时</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for mission in waiting_list %}
-                <tr>
-                    <td>{{mission.order_id}}</td>
-                    <td>{{mission.account_email}}</td>
-                    <td>{{mission.mission_name}}</td>
-                    <td>{{mission.sender_address}}</td>
-                    <td>{{mission.register_time}}</td>
-                    <td>{{mission.start_time}}</td>
-                    <td></td>
-                </tr>
-                {% endfor %}
+            <div class="margin_bottom">
+                <button class="btn_collapse" type="button" data-toggle="collapse"
+                        data-target="#collapse_table1"
+                        aria-expanded="false" aria-controls="collapse_table1">
+                </button>
+                正在运行队列
+            </div>
+            <div id="collapse_table1" class="collapse show">
+                <table class="">
+                    <thead class="bg-success">
+                    <tr>
+                        <th class="item1">
+                            排队号
+                        </th>
+                        <th class="item2">账户邮箱</th>
+                        <th class="item3">任务名称</th>
+                        <th class="item4">请求者地址</th>
+                        <th class="item5">注册时间</th>
+                        <th class="item6">开始时间</th>
+                        <th class="item7">用时</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for mission in running_list%}
+                    <tr>
+                        <td>{{mission.id}}</td>
+                        <td>{{mission.account_email}}</td>
+                        <td>{{mission.mission_name}}</td>
+                        <td>{{mission.sender_address}}</td>
+                        <td>{{mission.register_time}}</td>
+                        <td>{{mission.start_time}}</td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-                </tbody>
+            <div class="margin_bottom">
+                <button class="btn_collapse" type="button" data-toggle="collapse"
+                        data-target="#collapse_table2"
+                        aria-expanded="false" aria-controls="collapse_table2">
+                </button>
+                等待队列
+            </div>
+            <div id="collapse_table2" class="collapse show">
+                <table class="">
+                    <thead class="bg-warning">
+                    <tr>
+                        <th class="item1">排队号</th>
+                        <th class="item2">账户邮箱</th>
+                        <th class="item3">任务名称</th>
+                        <th class="item4">请求者地址</th>
+                        <th class="item5">注册时间</th>
+                        <th class="item6">开始时间</th>
+                        <th class="item7">用时</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for mission in waiting_list %}
+                    <tr>
+                        <td>{{mission.order_id}}</td>
+                        <td>{{mission.account_email}}</td>
+                        <td>{{mission.mission_name}}</td>
+                        <td>{{mission.sender_address}}</td>
+                        <td>{{mission.register_time}}</td>
+                        <td>{{mission.start_time}}</td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
             </table>
-            <table class="">
-                <thead class="bg-info">
-                <tr>
-                    <th class="item1">排队号</th>
-                    <th class="item2">账户邮箱</th>
-                    <th class="item3">任务名称</th>
-                    <th class="item4">请求者地址</th>
-                    <th class="item5">注册时间</th>
-                    <th class="item6">开始时间</th>
-                    <th class="item7">用时</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for mission in history_list %}
-                <tr>
-                    <td>{{mission.id}}</td>
-                    <td>{{mission.account_email}}</td>
-                    <td>{{mission.mission_name}}</td>
-                    <td>{{mission.sender_address}}</td>
-                    <td>{{mission.register_time}}</td>
-                    <td>{{mission.start_time}}</td>
-                    <td>{{mission.used_time}}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            <div class="margin_bottom">
+                <button class="btn_collapse" type="button" data-toggle="collapse"
+                        data-target="#collapse_table3"
+                        aria-expanded="false" aria-controls="collapse_table3">
+                </button>
+                历史记录
+            </div>
+            <div id="collapse_table3" class="collapse show">
+                <table class="">
+                    <thead class="bg-info">
+                    <tr>
+                        <th class="item1">排队号</th>
+                        <th class="item2">账户邮箱</th>
+                        <th class="item3">任务名称</th>
+                        <th class="item4">请求者地址</th>
+                        <th class="item5">注册时间</th>
+                        <th class="item6">开始时间</th>
+                        <th class="item7">用时</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for mission in history_list %}
+                    <tr>
+                        <td></td>
+                        <td>{{mission.account_email}}</td>
+                        <td>{{mission.mission_name}}</td>
+                        <td>{{mission.sender_address}}</td>
+                        <td>{{mission.register_time}}</td>
+                        <td>{{mission.start_time}}</td>
+                        <td>{{mission.used_time}}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 
