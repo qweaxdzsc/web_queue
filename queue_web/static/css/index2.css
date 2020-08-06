@@ -58,6 +58,35 @@ border-radius: 0px 0.25rem 0.25rem 0px;
     border-bottom:2px solid #dee2e6;
 }
 
+.block_table .item1{
+    width: 5%;
+}
+
+.block_table .item2{
+    width: 22%;
+}
+
+.block_table .item3{
+    width: 27%;
+}
+
+.block_table .item4{
+    width: 10%;
+}
+
+.block_table .item5{
+    width: 13%;
+}
+
+.block_table .item6{
+    width: 13%;
+}
+
+.block_table .item7{
+    width: 10%;
+}
+
+
 
 .block_additional{
   float:left;

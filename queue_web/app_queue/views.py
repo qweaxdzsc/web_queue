@@ -12,7 +12,7 @@ def index(request):
     parameters = {
         'running_list': running_list,
         'waiting_list': waiting_list,
-        'history_list': running_list,
+        'history_list': history_list,
     }
     return render(request, 'index.html', parameters)
 
@@ -41,7 +41,7 @@ def receive_result(request):
     pass
 
 
-a = threading.Thread(target=utils.take_task, args=[models.WaitList, ])
+a = threading.Thread(target=utils.take_task, args=[models.WaitList, False])
 # a.start()
 
 

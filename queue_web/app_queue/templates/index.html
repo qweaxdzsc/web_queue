@@ -37,19 +37,25 @@
             <table class="">
                 <thead class="bg-success">
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
+                    <th class="item1">排队号</th>
+                    <th class="item2">账户邮箱</th>
+                    <th class="item3">任务名称</th>
+                    <th class="item4">请求者地址</th>
+                    <th class="item5">注册时间</th>
+                    <th class="item6">开始时间</th>
+                    <th class="item7">用时</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for mission in running_list%}
                 <tr>
-                    <th scope="row">{{mission.id}}</th>
-                    <td>{{mission.order_id}}</td>
+                    <td></td>
                     <td>{{mission.account_email}}</td>
+                    <td>{{mission.mission_name}}</td>
                     <td>{{mission.sender_address}}</td>
+                    <td>{{mission.register_time}}</td>
+                    <td>{{mission.start_time}}</td>
+                    <td></td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -57,19 +63,25 @@
             <table class="">
                 <thead  class="bg-warning">
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
+                    <th class="item1">排队号</th>
+                    <th class="item2">账户邮箱</th>
+                    <th class="item3">任务名称</th>
+                    <th class="item4">请求者地址</th>
+                    <th class="item5">注册时间</th>
+                    <th class="item6">开始时间</th>
+                    <th class="item7">用时</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for mission in waiting_list%}
+                {% for mission in waiting_list %}
                 <tr>
-                    <th scope="row">{{mission.id}}</th>
                     <td>{{mission.order_id}}</td>
                     <td>{{mission.account_email}}</td>
+                    <td>{{mission.mission_name}}</td>
                     <td>{{mission.sender_address}}</td>
+                    <td>{{mission.register_time}}</td>
+                    <td>{{mission.start_time}}</td>
+                    <td></td>
                 </tr>
                 {% endfor %}
 
@@ -78,19 +90,25 @@
             <table class="">
                 <thead class="bg-info">
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
+                    <th class="item1">排队号</th>
+                    <th class="item2">账户邮箱</th>
+                    <th class="item3">任务名称</th>
+                    <th class="item4">请求者地址</th>
+                    <th class="item5">注册时间</th>
+                    <th class="item6">开始时间</th>
+                    <th class="item7">用时</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for mission in history_list%}
+                {% for mission in history_list %}
                 <tr>
-                    <th scope="row">{{mission.id}}</th>
-                    <td>{{mission.order_id}}</td>
+                    <td>{{mission.id}}</td>
                     <td>{{mission.account_email}}</td>
+                    <td>{{mission.mission_name}}</td>
                     <td>{{mission.sender_address}}</td>
+                    <td>{{mission.register_time}}</td>
+                    <td>{{mission.start_time}}</td>
+                    <td>{{mission.used_time}}</td>
                 </tr>
                 {% endfor %}
                 </tbody>

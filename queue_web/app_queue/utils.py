@@ -45,6 +45,7 @@ def db_to_running(obj):
 def take_task(db_wait, pause):
     while True:
         if not pause:
+            print('here')
             first_obj = get_first_mission(db_wait)
             if first_obj:
                 if able_to_run(first_obj):
@@ -71,6 +72,6 @@ def able_to_run(mission):
     :return:
     """
     pass
-    return bool()
+    return True
 
 

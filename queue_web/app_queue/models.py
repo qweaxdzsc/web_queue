@@ -76,6 +76,6 @@ class HistoryList(models.Model):
         return tip
 
     class Meta:
-        ordering = ["used_time"]
+        ordering = ["id"]
         verbose_name = "历史记录队列"
         verbose_name_plural = "历史记录队列"
