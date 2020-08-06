@@ -5,6 +5,8 @@
 }
 
 .block_content{
+  position: relative;
+  top: 80px;
   width: 1200px;
   margin: 5px auto;
   background-color: #66CCFF;
@@ -17,32 +19,40 @@
 }
 
 .block_control{
-  height: 120px;
+  height: 100px;
+  margin-right: 15px;
   padding: 10px;
   background-color: #F0F0F0;
 }
 
 .block_control .dropdown_search{
+  height: 30px;
   margin-bottom: 15px;
+  padding: 0.1rem 0.75rem;
 }
 
 .block_control .input_search{
   flex: none;
   width: 200px;
+  height: 30px;
+  padding: 0.1rem 0.75rem;
 }
 
 .block_control .btn_search{
+  height: 30px;
+  padding: 0.1rem 0.75rem;
   border-radius: 0px 0.25rem 0.25rem 0px;
 }
 
 .block_control .btn_add{
   margin-left: 500px;
   width: 200px;
+  padding: 0.1rem 0.75rem;
 }
 
 .block_table{
 
-  margin-right: 5px;
+  margin-right: 15px;
 }
 
 .block_table table{
@@ -72,11 +82,12 @@
 }
 
 .block_table .item1_td{
-    padding-left: 1.75rem;
+    padding-left: 1rem;
     width: 7%;
 }
 
 .block_table .item1{
+    padding-left: 0.75rem;
     width: 7%;
 }
 
@@ -107,8 +118,20 @@
 
 
 .block_additional{
-  float:left;
+  float: left;
   width: 195px;
   margin-left: 5px;
-  background-color: green;
+
+
+}
+
+.block_additional .fix_aside{
+  position: fixed;
+  height: 550px;
+  width: 195px;
+  z-index: 99;
+    padding-left: 20px;
+    border-left:1px solid #dee2e6;
+
+
 }

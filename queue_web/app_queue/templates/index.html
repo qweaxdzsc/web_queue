@@ -12,10 +12,10 @@
 {% endblock UserInfo%}
 {% block content %}
 <div class="block_content">
-    <div class="block_content_left">
+    <div class="block_content_left ">
         <div class="block_control">
-            <div class="input-group-prepend dropdown_search">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            <div class="input-group-prepend ">
+                <button class="btn btn-outline-secondary dropdown-toggle dropdown_search" type="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">搜索条件
                 </button>
                 <div class="dropdown-menu">
@@ -39,7 +39,7 @@
                         data-target="#collapse_table1"
                         aria-expanded="false" aria-controls="collapse_table1">
                 </button>
-                正在运行队列
+                正在运行
             </div>
             <div id="collapse_table1" class="collapse show">
                 <table class="">
@@ -59,7 +59,7 @@
                     <tbody>
                     {% for mission in running_list%}
                     <tr>
-                        <td>{{mission.id}}</td>
+                        <td  class="item1_td">{{mission.id}}</td>
                         <td>{{mission.account_email}}</td>
                         <td>{{mission.mission_name}}</td>
                         <td>{{mission.sender_address}}</td>
@@ -95,7 +95,7 @@
                     <tbody>
                     {% for mission in waiting_list %}
                     <tr>
-                        <td>{{mission.order_id}}</td>
+                        <td  class="item1_td">{{mission.order_id}}</td>
                         <td>{{mission.account_email}}</td>
                         <td>{{mission.mission_name}}</td>
                         <td>{{mission.sender_address}}</td>
@@ -150,22 +150,15 @@
     </div>
 
     <div class="block_additional">
-        <h1>Additional content</h1>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
-        <p>sdfsdfsdfsdf</p>
+        <div class="fix_aside">
+            <h3>附加内容</h3>
+                <p>内容1</p>
+                <p>内容2</p>
+                <p>内容3</p>
+
+
+        </div>
+
     </div>
 
 
