@@ -8,3 +8,15 @@
   margin: 0px auto;
 
 }
+
+.block_content{
+  position: relative;
+  top: 80px;
+  width: 1200px;
+  margin: 5px auto;
+}
+
+
+.btn_sign_up{
+  width: 120px;
+}

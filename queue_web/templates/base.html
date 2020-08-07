@@ -35,13 +35,16 @@
                     </div>
                 </li>
             </ul>
-            {% block UserInfo %}
-            {% endblock%}
+            <button class="btn btn-outline-success my-2 my-sm-0 btn-lg btn_sign_up">登陆</button>
         </div>
 
     </nav>
 </div>
-{% block content %}{% endblock%}
+
+<div class="block_content">
+{% block content %}
+{% endblock%}
+</div>
 <!-- Optional JavaScript CDN -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
