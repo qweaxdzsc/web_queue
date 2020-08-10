@@ -33,7 +33,7 @@
 
     </div>
     <!--        content 3 tables part-->
-    <div class="block_table table-hover table-striped table-sm">
+    <div class="block_table table-hover table-striped table-sm" id="area_3tables">
         <!--            running list table-->
         <div class="margin_bottom">
             <button class="btn_collapse" type="button" data-toggle="collapse"
@@ -43,7 +43,7 @@
             正在运行
         </div>
         <div id="collapse_table1" class="collapse show">
-            <table class="">
+            <table class="" id="table_running">
                 <thead class="bg-success">
                 <tr>
                     <th class="item1">
@@ -81,7 +81,7 @@
             等待队列
         </div>
         <div id="collapse_table2" class="collapse show">
-            <table class="">
+            <table class="" id="table_waiting">
                 <thead class="bg-warning">
                 <tr>
                     <th class="item1">排队号</th>
@@ -120,7 +120,7 @@
             历史记录
         </div>
         <div id="collapse_table3" class="collapse show">
-            <table class="">
+            <table class="" id="table_history">
                 <thead class="bg-info">
                 <tr>
                     <th class="item1">排队号</th>
@@ -225,9 +225,33 @@
                 $('#exampleModal').modal();
                 $('#input_local_file').val(data.path);
 
-            }
+            },
+            error:function(e){
+                alert('连接本地插件异常');
+		   },
         });
         return false;
     })
+<!--    setInterval(function () {-->
+<!--        $("#area_3tables").load(location.href + " #area_3tables");-->
+<!--    }, 5000);-->
+
+var replace_tables = function() {
+         $.ajax({
+            url:'/',
+            type:'get',
+            cache: 'false',
+            dataType: 'html',
+            success:function (data) {
+                console.log(data);
+                var text = $(data).filter('div#table_running').html();
+                console.log($(data).filter('div#table_running').html());
+<!--               $("#table_running").replaceWith(data.filter('#table_running'))-->
+
+            },
+            error:function(e){
+		   },
+        });
+}
 </script>
 {% endblock%}
