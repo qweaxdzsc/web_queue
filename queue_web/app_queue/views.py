@@ -2,8 +2,10 @@ from django.shortcuts import render, HttpResponse,redirect
 from app_queue import models
 from app_queue import utils
 import threading
+import os
 import urllib.request
 import json
+
 
 # Create your views here.
 def index(request):
@@ -19,16 +21,29 @@ def index(request):
 
 
 def add_project(request):
-    # order_id = utils.new_order_id(models.WaitList)
-    # data_dict = {'order_id': order_id,
-    #              'account_email': "zonghui.jin@estra-automotive.com",
-    #              'sender_address': '10.123.30.23',
-    #              'mission_name': 'test_demo',
-    #              'mission_data': "{‘project_address’：'/demo/demo_v1'}",
-    #              }
-    # utils.db_add_one(models.WaitList, data_dict)
+    if request.method == 'POST':
+        file_path = request.POST.get('input_local_file')
+        iterations = request.POST.get('input_iter')
+        project_address, file_name = os.path.split(file_path)
+        project_name, extension = os.path.splitext(file_name)
+        journal_path = '%s/%s.jou' % (project_address, project_name)
+        print(file_path)
+        print(iterations)
+        order_id = utils.new_order_id(models.WaitList)
+        mission_data = {
+            'project_name': project_name,
+            "project_address": project_address,
+            "journal": journal_path,
+        }
+        data_dict = {'order_id': order_id,
+                     'account_email': "zonghui.jin@estra-automotive.com",
+                     'sender_address': '10.123.30.23',
+                     'mission_name': project_name,
+                     'mission_data': mission_data,
+                     }
+        utils.db_add_one(models.WaitList, data_dict)
 
-    return redirect("/")
+        return redirect("/")
 
 
 def get_local_file(request):

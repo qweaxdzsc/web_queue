@@ -175,13 +175,16 @@
                 </button>
             </div>
 <!--modal body-->
+            <form action="/add/" method="post">
+             {% csrf_token %}
             <div class="modal-body">
-                <form action="/add">
+
                     <div class="form-group">
                         <label for="input_local_file">项目文件</label>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control"
-                                   aria-label="local_file" aria-describedby="btn_local_file" id="input_local_file">
+                                   aria-label="local_file" aria-describedby="btn_local_file" id="input_local_file"
+                            name="input_local_file">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" id="btn_local_file">...
                                 </button>
@@ -190,17 +193,16 @@
                     </div>
                     <div class="form-group">
                         <label for="input_iter">计算步数</label>
-                        <input type="number" class="form-control"  value="1000" id="input_iter">
+                        <input type="number" class="form-control" value="1000" id="input_iter" name="input_iter">
                     </div>
-                </form>
-            </div>
 
+            </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" id="btn_mission_submit">提交</button>
+                <button type="submit" class="btn btn-primary" id="btn_mission_submit">提交</button>
             </div>
-
+            </form>
         </div>
     </div>
 </div>
@@ -208,7 +210,7 @@
 {% endblock content %}
 {% block script %}
 <script>
-$('#exampleModal').modal()
+
     var csrf = $('input[name="csrfmiddlewaretoken"]').val();
     var rnd = Math.random()
     $('#btn_add_mission').on('click', function(){
