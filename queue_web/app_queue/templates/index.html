@@ -11,7 +11,6 @@
     <!--        content control part-->
     <div class="block_control">
         <div class="input-group-prepend ">
-            {% csrf_token %}
             <button class="btn btn-outline-secondary dropdown-toggle dropdown_search" type="button"
                     data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">搜索条件
@@ -23,11 +22,11 @@
             </div>
         </div>
         <div class="input-group mb-3">
-
+            {% csrf_token %}
             <input type="text" class="form-control input_search" aria-label="Text input with dropdown button">
             <button class="btn btn-outline-secondary btn_search" type="button" id="button-addon2">搜索</button>
             <button type="button" class="btn btn-outline-primary btn_add" id="btn_add_mission"
-                    data-toggle="modal" data-target="#exampleModal">新任务
+                    data-toggle="modal" data-target="">新任务
             </button>
 
         </div>
@@ -181,9 +180,9 @@
                     <div class="form-group">
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" placeholder="Recipient's username"
-                                   aria-label="Recipient's username" aria-describedby="button-addon2">
+                                   aria-label="Recipient's username" aria-describedby="button-addon3">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Button
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon3">Button
                                 </button>
                             </div>
                         </div>
@@ -210,6 +209,18 @@
 {% endblock content %}
 {% block script %}
 <script>
-
+    var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+    $('#btn_add_mission').on('click', function(){
+        $.ajax({
+            url:'http://127.0.0.1:8888',
+            type:'get',
+            cache: 'false',
+            data: {},
+            success:function (data) {
+                console.log(data)
+            }
+        });
+        return false;
+    })
 </script>
 {% endblock%}

@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from app_queue import models
 from app_queue import utils
 import threading
-
+import urllib.request
+import json
 
 # Create your views here.
 def index(request):
@@ -30,6 +31,22 @@ def add_project(request):
     return render(request, 'add_project.html')
 
 
+def get_local_file(request):
+    print(request.GET.get('request'))
+    org_data = 'none'
+    # if request.GET.get('request') == 'file':
+    #     url = "http://localhost:8888"
+    #     response = urllib.request.urlopen(url)
+    #     org_data = response.read().decode()
+    response = HttpResponse(org_data)
+
+    response["Access-Control-Allow-Origin"] = "*"
+    # response["Access-Control-Allow-Methods"] = "POST,GET,OPTIONS"
+    # response["Access-Control-Max-Age"] = "1000"
+    # response["Access-Control-Allow-Headers"] = "*"
+    return response
+
+
 def receive_result(request):
     """
     listen to customer's local machine
@@ -38,7 +55,7 @@ def receive_result(request):
     :param request:
     :return:
     """
-    pass
+    return HttpResponse('hello')
 
 
 a = threading.Thread(target=utils.take_task, args=[models.WaitList, False])
