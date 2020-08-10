@@ -4,7 +4,7 @@ import sys
 import threading
 from flask import Flask, send_from_directory, make_response
 app = Flask(__name__)
-# app.config['JSON_AS_ASCII'] = False
+app.config['JSON_AS_ASCII'] = False
 
 
 @app.route('/download')
@@ -13,7 +13,7 @@ def download():
 
 
 @app.route('/file')
-def local_file():
+def get_local_file():
     root = tk.Tk()
     root.withdraw()
     root.attributes('-topmost', True)

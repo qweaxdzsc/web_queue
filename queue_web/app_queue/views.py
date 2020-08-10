@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse,redirect
 from app_queue import models
 from app_queue import utils
 import threading
@@ -19,16 +19,16 @@ def index(request):
 
 
 def add_project(request):
-    order_id = utils.new_order_id(models.WaitList)
-    data_dict = {'order_id': order_id,
-                 'account_email': "zonghui.jin@estra-automotive.com",
-                 'sender_address': '10.123.30.23',
-                 'mission_name': 'test_demo',
-                 'mission_data': "{‘project_address’：'/demo/demo_v1'}",
-                 }
-    utils.db_add_one(models.WaitList, data_dict)
+    # order_id = utils.new_order_id(models.WaitList)
+    # data_dict = {'order_id': order_id,
+    #              'account_email': "zonghui.jin@estra-automotive.com",
+    #              'sender_address': '10.123.30.23',
+    #              'mission_name': 'test_demo',
+    #              'mission_data': "{‘project_address’：'/demo/demo_v1'}",
+    #              }
+    # utils.db_add_one(models.WaitList, data_dict)
 
-    return render(request, 'add_project.html')
+    return redirect("/")
 
 
 def get_local_file(request):
