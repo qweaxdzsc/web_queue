@@ -210,12 +210,14 @@
 {% block script %}
 <script>
     var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+    var rnd = Math.random()
     $('#btn_add_mission').on('click', function(){
         $.ajax({
-            url:'http://127.0.0.1:8888',
+            url:'http://127.0.0.1:8500/file',
             type:'get',
             cache: 'false',
-            data: {},
+            data: {rnd: rnd},
+            datatype: 'json',
             success:function (data) {
                 console.log(data)
             }

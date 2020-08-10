@@ -16,10 +16,13 @@ class Websocket_Client(threading.Thread):
         # 连接服务端
         tcp_client.connect(self.address)
         while True:
+            print('here')
+            tcp_client.send(('client come to visit').encode())
             info = tcp_client.recv(self.buffer)
+            print(info)
             print("{}".format(str(info, encoding="utf8")))
 
-            msg = input()
+            msg = input('请输入:')
             tcp_client.send(msg.encode("utf8"))
             if info.lower().decode("utf8") == "bye":
                 tcp_client.close()
