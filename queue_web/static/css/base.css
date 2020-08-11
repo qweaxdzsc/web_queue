@@ -21,6 +21,33 @@
   width: 120px;
 }
 
+.btn_close{
+  position: relative;
+  pointer-events: auto;
+  left: 420px;
+  bottom: 215px;
+
+}
+
+.btn_close button{
+    width: 40px;
+    height: 40px;
+
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+    font-size: 2.5rem;
+    font-weight: 1000;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 2px 2px 2px #000;
+    opacity: .75;
+    text-stroke:1px #f00;
+
+}
+
+
+
 
 .form-login {
   width: 100%;
@@ -38,8 +65,15 @@
 
 
 .form-login .bg_title {
+  height: 65px;
   border-radius: 0.25rem 0.25rem 0.25rem 0.25rem ;
   background-color: #c1d4e8;
+}
+
+.form-login .hidden_tip{
+  padding:5px;
+  font-size: 15px;
+  visibility: hidden;
 }
 
 
