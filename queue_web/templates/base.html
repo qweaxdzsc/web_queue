@@ -14,7 +14,7 @@
     {% block css %}{% endblock %}
 </head>
 <body>
-<div class="bg-dark  fixed-top">
+<div class="bg-dark fixed-top">
     <nav class="navbar navbar-expand-lg navbar-light navbar-dark bg-dark nav_content">
 
         <a class="navbar-brand mb-0 h1" href="/">Estra队列系统</a>
@@ -35,13 +35,42 @@
                     </div>
                 </li>
             </ul>
-            <button class="btn btn-outline-success my-2 my-sm-0 btn-lg btn_sign_up">登陆</button>
+            <button type="button" id="btn_login" data-toggle="modal" data-target="#modal_login"
+                    class="btn btn-outline-success my-2 my-sm-0 btn-lg btn_sign_up">登陆
+            </button>
         </div>
 
     </nav>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="modal_login" data-backdrop="static"
+     tabindex="-1" role="dialog" aria-labelledby="modal_loginLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="form-login">
+            {% csrf_token %}
+            <div align="center" class="shadow-lg bg-white form_block modal-content">
+                <div class="bg_title">
+                    <h1 class="h3 font-weight-bolder font-italic display-4">ESTRA</h1>
+                </div>
+                <h4 class=" mb-4 text-dark font-weight-normal">队列系统</h4>
 
+                <label for="input_name" class="sr-only">Email Name</label>
+                <input type="email" id="input_name" class="form-control" placeholder="Email Name" required
+                   autofocus value="zonghui.jin">
+                <label for="input_pwd" class="sr-only">Password</label>
+                <input type="password" id="input_pwd" class="form-control" placeholder="Password" required
+                value="123456">
+
+                <button type="button" class="btn btn-lg btn-primary btn-block mt-4" id="btn_login_submit">登 陆</button>
+                <p class="mt-3 mb-3 text-muted" align="center">&copy; 2020-2100</p>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="block_content">
+
+
 {% block content %}
 {% endblock%}
 </div>
@@ -55,6 +84,36 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"
         integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
         crossorigin="anonymous"></script>
+<script type="text/javascript">
+    var auth = ''
+    var rnd = Math.random()
+    $('#btn_login_submit').on('click', function(){
+        var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+        var name = $('#input_name').val();
+        var pwd = $('#input_pwd').val();
+        $.ajax({
+            url:'/login/',
+            type:'post',
+            cache: 'false',
+            data: {name: name, pwd:pwd, csrfmiddlewaretoken:csrf},
+            datatype: 'json',
+            success: function(data) {
+                console.log(data);
+                if(data.pass){
+                   auth = data.authorization
+                   window.location.reload()
+                }
+                else {
+
+                };
+            },
+            error:function(e){
+                alert('连接异常');
+		   },
+        });
+        return false;
+    });
+</script>
 {% block script %}{% endblock%}
 </body>
 </html>

@@ -4,13 +4,13 @@ from django.db import models
 
 
 class User(models.Model):
-    # gender = (
-    #     ('male', "男"),
-    #     ('female', "女"),
-    # )
+
+    objects = models.Manager()
+
     id = models.AutoField(primary_key=True)
     email = models.EmailField(unique=True)
-    password = models.CharField(max_length=256)
+    password = models.CharField(max_length=64)
+    authorization = models.CharField(max_length=128, default='normal')
 
     def __str__(self):
         tip = """[ID: %s, email: %s] """ % (str(self.id), self.email)

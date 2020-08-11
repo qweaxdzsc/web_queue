@@ -20,3 +20,46 @@
 .btn_sign_up{
   width: 120px;
 }
+
+
+.form-login {
+  width: 100%;
+  margin: auto;
+}
+
+
+.form-login .form_block{
+  width: 310px;
+  height: 430px;
+  padding: 2rem;
+  border-radius: 1.25rem;
+  margin: auto;
+}
+
+
+.form-login .bg_title {
+  border-radius: 0.25rem 0.25rem 0.25rem 0.25rem ;
+  background-color: #c1d4e8;
+}
+
+
+.form-login .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 12px;
+  font-size: 18px;
+}
+.form-login .form-control:focus {
+  z-index: 2;
+}
+.form-login input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-login input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
