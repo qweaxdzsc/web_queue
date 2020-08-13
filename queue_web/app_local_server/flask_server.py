@@ -33,6 +33,6 @@ def get_local_file():
 
 if __name__ == '__main__':
     print('test web:  http://localhost:8500/file')
-    app.run(debug=True, host='localhost', port='8500')
+    app.run(debug=True, host='0.0.0.0', port='8500')
 
 

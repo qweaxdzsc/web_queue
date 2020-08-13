@@ -10,6 +10,7 @@ import json
 
 
 def login(request):
+    request.session.clear_expired()
     if request.method == "POST":
         user_auth = {
             'pass': False,
@@ -30,7 +31,7 @@ def login(request):
             else:
                 user_auth['pass'] = True
                 user_auth['authorization'] = pwd_check.first().authorization
-        print(user_auth)
+                request.session['user_name'] = name
         return HttpResponse(json.dumps(user_auth, ensure_ascii=False), content_type="application/json")
 
     return render(request, 'login.html')
@@ -42,5 +43,7 @@ def register(request):
 
 
 def logout(request):
-    pass
-    return redirect("/index/")
+    print(request.session.exists(request.session))
+    request.session.flush()
+    # request.session.delete("session_key")
+    return redirect("/")

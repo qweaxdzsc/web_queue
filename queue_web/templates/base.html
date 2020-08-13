@@ -14,8 +14,8 @@
     {% block css %}{% endblock %}
 </head>
 <body>
-<div class="bg-dark fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-light navbar-dark bg-dark nav_content">
+<div class=" bg-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark nav_content">
 
         <a class="navbar-brand mb-0 h1" href="/">Estra队列系统</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -35,9 +35,9 @@
                     </div>
                 </li>
             </ul>
-            <button type="button" id="btn_login" data-toggle="modal" data-target="#modal_login"
-                    class="btn btn-outline-success my-2 my-sm-0 btn-lg btn_sign_up">登陆
-            </button>
+            {% block login_info %}
+
+            {% endblock %}
         </div>
 
     </nav>
@@ -92,10 +92,8 @@
         integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
         crossorigin="anonymous"></script>
 <script type="text/javascript">
-    $('#modal_login').modal();
-    var auth = ''
-    var rnd = Math.random()
-    $('#btn_login_submit').on('click', function(){
+    var auth = '';
+    var event_login = function(){
         var csrf = $('input[name="csrfmiddlewaretoken"]').val();
         var name = $('#input_name').val();
         var pwd = $('#input_pwd').val();
@@ -123,7 +121,10 @@
                 alert('连接异常');
 		   },
         });
-        return false;
+    };
+
+    $('#btn_login_submit').on('click', function(){
+        event_login()
     });
 </script>
 {% block script %}{% endblock%}

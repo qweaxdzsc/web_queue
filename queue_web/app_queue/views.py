@@ -1,10 +1,8 @@
-from django.shortcuts import render, HttpResponse,redirect
+from django.shortcuts import render, HttpResponse, redirect
 from app_queue import models
 from app_queue import utils
 import threading
 import os
-import urllib.request
-import json
 
 
 # Create your views here.
@@ -12,11 +10,19 @@ def index(request):
     running_list = models.RunningList.objects.all()
     waiting_list = models.WaitList.objects.all()
     history_list = models.HistoryList.objects.all()
+    user_name = request.session.get('user_name')
+    is_login = False
+    if user_name:
+        is_login = True
+        user_name = user_name.split('.')[0]
     parameters = {
         'running_list': running_list,
         'waiting_list': waiting_list,
         'history_list': history_list,
+        'user_name': user_name,
+        'is_login': is_login,
     }
+
     return render(request, 'index.html', parameters)
 
 

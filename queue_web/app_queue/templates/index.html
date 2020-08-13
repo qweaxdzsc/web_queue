@@ -5,6 +5,19 @@
 {% block css %}
 <link href="{% static 'css/index2.css' %}" rel="stylesheet"/>{% endblock %}
 
+{% block login_info %}
+    {% if is_login == True %}
+        <div class="text-whit text-success btn user_info">Welcome {{user_name}}</div>
+        <a id="btn_logout" href="/logout"
+           class="btn btn-outline-success btn_sign_up">注销
+        </a>
+    {% else %}
+        <button type="button" id="btn_login" data-toggle="modal" data-target="#modal_login"
+                class="btn btn-outline-success btn_sign_up">登陆
+        </button>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 <!--    left content-->
 <div class="block_content_left ">
@@ -25,10 +38,14 @@
             {% csrf_token %}
             <input type="text" class="form-control input_search" aria-label="Text input with dropdown button">
             <button class="btn btn-outline-secondary btn_search" type="button" id="button-addon2">搜索</button>
-            <button type="button" class="btn btn-outline-primary btn_add" id="btn_add_mission"
-                    data-toggle="modal" data-target="">新任务
+            <button type="button" class="btn btn-outline-primary btn_add"
+            {% if is_login == True %}
+                id="btn_add_mission"
+            {% else %}
+                id="btn_add_mission_false"
+            {% endif %}
+            data-toggle="modal">新任务
             </button>
-
         </div>
 
     </div>
@@ -210,7 +227,6 @@
 {% endblock content %}
 {% block script %}
 <script type="text/javascript">
-
     var csrf = $('input[name="csrfmiddlewaretoken"]').val();
     var rnd = Math.random()
     $('#btn_add_mission').on('click', function(){
@@ -235,6 +251,11 @@
     setInterval(function () {
         replace_tables();
     }, 20000);
+
+    $('#btn_add_mission_false').on('click', function(){
+        $('#modal_login').modal();
+    });
+
 var replace_tables = function() {
          $.ajax({
             url:'/',
