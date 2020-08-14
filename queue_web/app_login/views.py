@@ -43,7 +43,7 @@ def register(request):
 
 
 def logout(request):
-    print(request.session.exists(request.session))
-    request.session.flush()
+    # request.session.flush()
+    request.session.delete(request.session.session_key)
     # request.session.delete("session_key")
     return redirect("/")
