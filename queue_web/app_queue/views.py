@@ -106,14 +106,13 @@ def fetch_tables(request):
     parameters = {
         'error_info': ''
     }
+    list_fetched = []
 
     condition = int(request.GET.get('condition'))
     keyword = request.GET.get('keyword')
     filter_current_user = request.GET.get('current_user')
     user_name = request.session.get('user_name')
 
-    account_email = user_name + '@estra-automotive.com'
-    list_fetched = []
     if field_dict[condition]:
         filter_dict = {
             '%s__icontains' % field_dict[condition]: keyword
@@ -123,6 +122,7 @@ def fetch_tables(request):
     if parameters['error_info']:
         return render(request, 'index.html', parameters)
     if filter_current_user == 'true':
+        account_email = user_name + '@estra-automotive.com'
         filter_dict['account_email'] = account_email
     print('filter_dict: ', filter_dict)
     for list_name, obj in list_obj.items():
