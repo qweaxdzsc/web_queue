@@ -1,8 +1,28 @@
 from django.shortcuts import render, HttpResponse, redirect
 from app_queue import models
 from app_queue import utils
+import json
 # import threading
 import os
+
+field_dict = {
+    0: None,
+    1: 'order_id',
+    2: 'account_email',
+    3: 'mission_name',
+    4: 'sender_address',
+    5: 'register_time',
+    6: 'start_time',
+    7: 'used_time',
+    8: 'id',
+    9: 'mission_data',
+}
+
+list_obj = {
+    'running_list': models.RunningList.objects,
+    'waiting_list': models.WaitList.objects,
+    'history_list': models.HistoryList.objects,
+}
 
 
 # Create your views here.
@@ -12,38 +32,13 @@ def index(request):
     if user_name:
         is_login = True
         user_name = user_name.split('.')[0]
-    condition = request.GET.get('condition')
-    keyword = request.GET.get('keyword')
-    print(request.get_full_path())
-    filter_dict = {
-        0: None,
-        1: 'id',
-        2: 'order_id',
-        3: 'account_email',
-        4: 'sender_address',
-        5: 'mission_name',
-        6: 'mission_data',
-        7: 'register_time',
-        8: 'start_time',
-        9: 'used_time',
-    }
     parameters = {
+        'error_info': '',
         'user_name': user_name,
         'is_login': is_login,
     }
-
-    list_obj = {
-        'running_list': models.RunningList.objects,
-        'waiting_list': models.WaitList.objects,
-        'history_list': models.HistoryList.objects,
-    }
     for list_name, obj in list_obj.items():
-        parameters[list_name] = obj.all()                    # TODO extract to a function or a class
-    # email_check = models..objects.filter(email=account_email)
-    # running_list = models.RunningList.objects.all()
-    # waiting_list = models.WaitList.objects.all()
-    # history_list = models.HistoryList.objects.all()
-
+        parameters[list_name] = obj.all()
     return render(request, 'index.html', parameters)
 
 
@@ -96,40 +91,50 @@ def receive_result(request):
     return HttpResponse('hello')
 
 
-def test(request):
-    condition_dict = {
-        0: None,
-        1: 'id',
-        2: 'order_id',
-        3: 'account_email',
-        4: 'sender_address',
-        5: 'mission_name',
-        6: 'mission_data',
-        7: 'register_time',
-        8: 'start_time',
-        9: 'used_time',
-    }
+def fetch_tables(request):
+    """
+    used for ajax to request 3 tables data.
+    1. get search condition, keyword, filter_current_user, user_name;
+    2. check the keyword format;
+    3. if correct, form filter dict, if not, return render with error_info
+    4. if correct, use filter dict to filter data from database, return render
+    :param request:
+    :return: rendered index.html, error_info which hide in index.html
+    if check ok, rendered index.html with 3 tables data
+    if wrong, add error info
+    """
     parameters = {
+        'error_info': ''
     }
 
-    list_obj = {
-        'running_list': models.RunningList.objects,
-        'waiting_list': models.WaitList.objects,
-        'history_list': models.HistoryList.objects,
-    }
-    condition = 7
-    keyword = '8'
-    filter_dict = {
-        '%s__icontains' % condition_dict[condition]: keyword
-    }
-    # TODO solve multi filter request
-    try:
-        result = models.RunningList.objects.filter(**filter_dict)
-    except Exception as e:
-        result = []
+    condition = int(request.GET.get('condition'))
+    keyword = request.GET.get('keyword')
+    filter_current_user = request.GET.get('current_user')
+    user_name = request.session.get('user_name')
+
+    account_email = user_name + '@estra-automotive.com'
+    list_fetched = []
+    if field_dict[condition]:
+        filter_dict = {
+            '%s__icontains' % field_dict[condition]: keyword
+        }
     else:
-        print(result)
-    return HttpResponse(result)
+        filter_dict, parameters['error_info'] = utils.check_keyword(keyword, field_dict)
+    if parameters['error_info']:
+        return render(request, 'index.html', parameters)
+    if filter_current_user == 'true':
+        filter_dict['account_email'] = account_email
+    print('filter_dict: ', filter_dict)
+    for list_name, obj in list_obj.items():
+        try:
+            list_fetched = obj.filter(**filter_dict)
+        except Exception as e:
+            print(e)
+            parameters['error_info'] = 'fetch data failed, please check search keyword'
+            list_fetched = []
+        parameters[list_name] = list_fetched
+
+    return render(request, 'index.html', parameters)
 
 # a = threading.Thread(target=utils.take_task, args=[models.WaitList, False])
 # a.start()

@@ -13,6 +13,8 @@ class WaitList(models.Model):
     mission_name = models.CharField('任务名称', max_length=32)
     mission_data = models.TextField('任务详情', )
     register_time = models.DateTimeField('注册时间', auto_now_add=True)
+    start_time = models.CharField('开始时间', blank=True, default='', max_length=64)
+    used_time = models.CharField('用时', max_length=64, blank=True, default='')
 
     def __str__(self):
         tip = """[Order: %s, Mission: %s, Account: %s] """ % (str(self.order_id), self.mission_name, self.account_email)
@@ -41,12 +43,14 @@ class RunningList(models.Model):
     objects = models.Manager()
 
     id = models.AutoField('ID', primary_key=True)
+    order_id = models.CharField('队列ID', blank=True, default='', max_length=16)
     account_email = models.EmailField('账户邮箱', )
     sender_address = models.CharField('请求者地址', max_length=64)
     mission_name = models.CharField('任务名称', max_length=32)
     mission_data = models.TextField('任务详情', )
     register_time = models.DateTimeField('注册时间')
     start_time = models.DateTimeField('开始时间', auto_now_add=True)
+    used_time = models.CharField('用时', max_length=64, blank=True, default='')
 
     def __str__(self):
         tip = """[ID: %s, Mission: %s, Account: %s] """ % (str(self.id), self.mission_name, self.account_email)
@@ -63,6 +67,7 @@ class HistoryList(models.Model):
     objects = models.Manager()
 
     id = models.AutoField('ID', primary_key=True)
+    order_id = models.CharField('队列ID', blank=True, default='', max_length=16)
     account_email = models.EmailField('账户邮箱', )
     sender_address = models.CharField('请求者地址', max_length=64)
     mission_name = models.CharField('任务名称', max_length=32)
