@@ -2,14 +2,25 @@ import tkinter as tk
 from tkinter import filedialog
 import sys
 import threading
-from flask import Flask, send_from_directory, make_response
+from flask import Flask, make_response, request
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
 
-@app.route('/download')
-def download():
-    return send_from_directory(r"C:\Users\BZMBN4\Desktop", filename="123.txt", as_attachment=True)
+@app.route('/do_task', methods=['GET', 'POST'])
+def do_task():
+    if request.method == 'POST':
+        task_number = len(request.form)
+        for i in range(task_number):
+            task_dict = eval(request.form[str(i)])
+            print(type(task_dict), task_dict)
+
+    # set CORS response
+    response_dict = {
+        'connected': True,
+    }
+    response = make_response(response_dict)
+    return response
 
 
 @app.route('/file')
@@ -32,7 +43,7 @@ def get_local_file():
 
 
 if __name__ == '__main__':
-    print('test web:  http://localhost:8500/file')
+    print('test web:  http://localhost:8500/do_task')
     app.run(debug=True, host='0.0.0.0', port='8500')
 
 
