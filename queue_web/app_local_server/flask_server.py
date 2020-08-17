@@ -7,20 +7,28 @@ app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
 
-@app.route('/do_task', methods=['GET', 'POST'])
-def do_task():
-    if request.method == 'POST':
-        task_number = len(request.form)
-        for i in range(task_number):
-            task_dict = eval(request.form[str(i)])
-            print(type(task_dict), task_dict)
+class DoTasks(threading.Thread):
+    def __init__(self, tasks_dict):
+        super().__init__()
+        self.tasks_dict = tasks_dict
 
-    # set CORS response
-    response_dict = {
-        'connected': True,
-    }
-    response = make_response(response_dict)
-    return response
+    def run(self):
+        task_number = len(self.tasks_dict)
+        for i in range(task_number):
+            task_dict = eval(self.tasks_dict[str(i)])
+            print(task_dict)
+
+            file_name = r'.\app\fluent_solver.py'
+            exec(open(file_name, 'r').read(), task_dict)
+
+
+@app.route('/get_task', methods=['GET', 'POST'])
+def get_task():
+    if request.method == 'POST':
+        do_task = DoTasks(request.form)
+        do_task.start()
+
+    return 'receive tasks'
 
 
 @app.route('/file')
