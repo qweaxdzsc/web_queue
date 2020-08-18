@@ -1,13 +1,13 @@
-from . import txt_to_python
-from . import python_to_html
-from . import data_to_excel
+from app.report_standard import txt_to_python
+from app.report_standard import python_to_html
+# from . import data_to_excel
 import cgitb
 
 global project_address
 global project_name
 # designate path
 project_address = r"G:/test/queue_test2"
-project_name = "Test_V1_solve"
+project_name = "Test_V1"
 path = project_address + '\\result_%s\\' % project_name
 
 # Txt input path

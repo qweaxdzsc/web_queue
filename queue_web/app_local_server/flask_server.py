@@ -23,6 +23,7 @@ class DoTasks(threading.Thread):
             print('Task%s: ' % i, task_dict)
             if task_dict['software'] in app_list:
                 script_path = '%s/%s/main.py' % (self.app_dir, task_dict['software'])
+                print(os.getcwd())
                 exec(open(script_path, 'r').read(), task_dict)
 
     def return_result(self):
