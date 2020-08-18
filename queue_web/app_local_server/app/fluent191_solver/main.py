@@ -11,9 +11,10 @@ global mpi_host
 global project_name
 global project_address
 
-
-# TODO FIND FLUENT IN environment variable
-app_path = r'C:\Program Files\ANSYS Inc\v201\fluent\ntbin\win64\fluent'
+ansys_root = os.environ.get('AWP_ROOT191')
+app_path = r'%s\fluent\ntbin\win64\fluent' % ansys_root
+print('application path:', app_path)
+disk = project_address[:2]
 
 
 class CalGuard(threading.Thread):
@@ -65,7 +66,6 @@ class CalGuard(threading.Thread):
                     host_name = line[1]
                     pid = line[3]
                     bat_file_name = 'cleanup-fluent-%s-%s.bat' % (host_name, pid)
-
         for i in file_list:
             if i == bat_file_name:
                 print('.bat address', os.path.join(dir, i))
@@ -75,11 +75,18 @@ class CalGuard(threading.Thread):
 
 
 if use_mpi:
-    print(mpi_host)
-    # TODO write host.txt
+    mpi_file = '%s/mpi_host.txt' % project_address
+    with open(mpi_file, 'w') as f:
+        for hose_name, cores in mpi_host.items():
+            f.write('%s:%s\n' % (hose_name, cores))
 
-p = subprocess.Popen(r'"%s" %s' % (app_path, command), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                 stderr=subprocess.PIPE, universal_newlines=True)
+p = subprocess.Popen(r'%s &&'
+                     r'cd %s &&'
+                     r'"%s" %s' %
+                     (disk, project_address, app_path, command),
+                     shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                     stderr=subprocess.PIPE, universal_newlines=True)
+
 calguard = CalGuard(project_address, project_name)
 calguard.start()
 out, err = p.communicate()  # block calculation thread until finished

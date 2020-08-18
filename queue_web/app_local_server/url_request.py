@@ -7,16 +7,27 @@ import urllib.parse
 # 定义一个字典参数
 data_dict = {}
 # root.withdraw()
-task_dict = {
+task_dict0 = {
     "id": '105',
-    "software": "fluent_solver",
-    "use_mpi": False,
-    "mpi_host": "",
-    "command": r"3d -meshing -t4 -i G:\test\queue_test2\Test_V1_mesh.jou",
+    "software": "fluent191_solver",
+    "use_mpi": True,
+    "mpi_host": {'DL5FWYWG2': 2, 'DL25TW5V2': 2},
+    "command": r"3d -t4 -i G:/test/queue_test2/Test_V1_solve.jou -mpi=ibmmpi -cnf=mpi_host.txt",
     "project_address": "G:/test/queue_test2",
     "project_name": "Test_V1_solve",
 }
-data_dict[0] = task_dict
+
+task_dict1 = {
+    "id": '105',
+    "software": "report_standard",
+    "use_mpi": False,
+    "mpi_host": {},
+    "command": r"",
+    "project_address": "G:/test/queue_test2",
+    "project_name": "Test_V1_solve",
+}
+data_dict[0] = task_dict1
+# data_dict[1] = task_dict1
 
 # 使用urlencode将字典参数序列化成字符串
 data_string = urllib.parse.urlencode(data_dict)
@@ -26,9 +37,9 @@ last_data = bytes(data_string, encoding='utf-8')
 response = urllib.request.urlopen("http://localhost:8500/get_task", data=last_data)
 # 我们的参数出现在form表单中，这表明是模拟了表单的提交方式，以post方式传输数据
 
-# dict = response.read().decode('utf-8')
-# print(dict)
-# print(response.getheaders())
+dict = response.read().decode('utf-8')
+print(dict)
+print(response.getheaders())
 
 
 end_time = time.time()

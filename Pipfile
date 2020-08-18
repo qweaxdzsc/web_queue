@@ -9,6 +9,7 @@ verify_ssl = true
 django = "*"
 django-stubs = "*"
 flask = "*"
+pyinstaller = "*"
 
 [requires]
 python_version = "3.7"
