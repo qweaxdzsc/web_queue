@@ -10,6 +10,7 @@ global command
 global mpi_host
 global project_name
 global project_address
+global mission_status
 
 ansys_root = os.environ.get('AWP_ROOT191')
 app_path = r'%s\fluent\ntbin\win64\fluent' % ansys_root
@@ -70,6 +71,7 @@ class CalGuard(threading.Thread):
             if i == bat_file_name:
                 print('.bat address', os.path.join(dir, i))
                 subprocess.call(os.path.join(dir, i), shell=True)
+                mission_status = 'abnormal'
         print('\nall finished')
         # self.quit()
 
@@ -90,6 +92,8 @@ p = subprocess.Popen(r'%s &&'
 calguard = CalGuard(project_address, project_name)
 calguard.start()
 out, err = p.communicate()  # block calculation thread until finished
+if mission_status != 'abnormal':
+    mission_status = 'finished'
 # calguard.quit()
 
 

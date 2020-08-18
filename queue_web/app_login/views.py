@@ -17,6 +17,9 @@ def login(request):
             'error_info': '',
             'authorization': '',
         }
+        print(request.POST)
+        print(request.headers)
+        print(request.COOKIES)
         name = request.POST.get('name')
         pwd = request.POST.get('pwd')
         account_email = name + '@estra-automotive.com'

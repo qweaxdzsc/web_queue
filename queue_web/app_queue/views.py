@@ -4,7 +4,7 @@ from app_queue import utils
 import json
 # import threading
 import os
-
+print("http://localhost:8000/")
 field_dict = {
     0: None,
     1: 'order_id',
@@ -88,7 +88,9 @@ def receive_result(request):
     :param request:
     :return:
     """
-    return HttpResponse('hello')
+    if request.method == 'POST':
+        print(request.POST)
+    return HttpResponse('django server received result')
 
 
 def fetch_tables(request):

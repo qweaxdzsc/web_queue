@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import filedialog
 import os
 import socket
-import sys
 import threading
+import urllib.request
+import urllib.parse
 from flask import Flask, make_response, request
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -14,6 +15,7 @@ class DoTasks(threading.Thread):
         super().__init__()
         self.tasks_dict = tasks_dict
         self.app_dir = r'.\app'
+        self.return_data = dict()
 
     def run(self):
         task_number = len(self.tasks_dict)
@@ -21,13 +23,32 @@ class DoTasks(threading.Thread):
         for i in range(task_number):
             task_dict = eval(self.tasks_dict[str(i)])
             print('Task%s: ' % i, task_dict)
+            task_dict['mission_status'] = 'not start'
             if task_dict['software'] in app_list:
                 script_path = '%s/%s/main.py' % (self.app_dir, task_dict['software'])
-                print(os.getcwd())
-                exec(open(script_path, 'r').read(), task_dict)
+                try:
+                    print('pass')
+                    # exec(open(script_path, 'r').read(), task_dict)
+                except Exception as e:
+                    print(e)
+                else:
+                    print(task_dict['mission_status'])
+            self.return_data['%s_mission_status' % i] = task_dict['mission_status']
+        self.return_data['mission_id'] = task_dict['id']
+        self.return_result()
 
     def return_result(self):
-        pass
+        # GET request to get cookie
+        response = urllib.request.urlopen("http://localhost:8000")
+        cookie = response.getheaders('Set-Cookie')
+        # stringify data dict to string
+        data_string = urllib.parse.urlencode(self.return_data)
+        # convert to bytes
+        last_data = bytes(data_string, encoding='utf-8')
+        response = urllib.request.urlopen("http://localhost:8000/receive_result/", data=last_data)
+        response_body = response.read().decode('utf-8')
+        print(response_body)
+        print(response.getheaders())
 
 
 @app.route('/get_task', methods=['GET', 'POST'])
@@ -36,7 +57,7 @@ def get_task():
         do_task = DoTasks(request.form)
         do_task.start()
 
-    return 'receive tasks'
+    return 'flask server receive tasks'
 
 
 @app.route('/file')

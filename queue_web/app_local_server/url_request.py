@@ -14,7 +14,7 @@ task_dict0 = {
     "mpi_host": {'DL5FWYWG2': 2, 'DL25TW5V2': 2},
     "command": r"3d -t4 -i G:/test/queue_test2/Test_V1_solve.jou -mpi=ibmmpi -cnf=mpi_host.txt",
     "project_address": "G:/test/queue_test2",
-    "project_name": "Test_V1",
+    "project_name": "Test_V1_solve",
 }
 
 task_dict1 = {
@@ -26,7 +26,7 @@ task_dict1 = {
     "project_address": "G:/test/queue_test2",
     "project_name": "Test_V1",
 }
-data_dict[0] = task_dict1
+data_dict[0] = task_dict0
 # data_dict[1] = task_dict1
 
 # 使用urlencode将字典参数序列化成字符串
