@@ -41,6 +41,5 @@ dict = response.read().decode('utf-8')
 print(dict)
 print(response.getheaders())
 
-
 end_time = time.time()
 print(end_time - start_time)

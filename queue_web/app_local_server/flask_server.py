@@ -38,17 +38,34 @@ class DoTasks(threading.Thread):
         self.return_result()
 
     def return_result(self):
-        # GET request to get cookie
-        response = urllib.request.urlopen("http://localhost:8000")
-        cookie = response.getheaders('Set-Cookie')
+        url = "http://localhost:8000/receive_result/"
+        response = self.post_request(url, self.return_data)
+        response_content = response.read().decode()
+        print(response_content)
+
+    def post_request(self, url, new_dict):
+        """
+        1. get csrf token dict include data and header
+        2. add new data dict
+        3. make post request with formed data and header
+        :param url: post address
+        :param new_dict: new data dict
+        :return: urllib request response object
+        """
+        response = urllib.request.urlopen("http://localhost:8000/get_csrf")
+        csrf_dict = eval(response.read().decode())
         # stringify data dict to string
-        data_string = urllib.parse.urlencode(self.return_data)
-        # convert to bytes
+        data_dict = csrf_dict['data']
+        data_dict.update(new_dict)
+        data_string = urllib.parse.urlencode(data_dict)
+        # # convert to bytes
         last_data = bytes(data_string, encoding='utf-8')
-        response = urllib.request.urlopen("http://localhost:8000/receive_result/", data=last_data)
+        header = csrf_dict['header']
+        formed_request = urllib.request.Request(url=url, data=last_data, headers=header)
+        response = urllib.request.urlopen(formed_request)
         response_body = response.read().decode('utf-8')
         print(response_body)
-        print(response.getheaders())
+        return response
 
 
 @app.route('/get_task', methods=['GET', 'POST'])

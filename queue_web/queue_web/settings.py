@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app_login',
     'app_queue',
-    'demo_test',
 ]
 
 MIDDLEWARE = [

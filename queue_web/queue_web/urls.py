@@ -19,7 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # second branch url
+    # secondary branch url
     path('', include('app_login.urls', namespace='app_login')),
     path('', include('app_queue.urls', namespace='app_queue')),
 ]

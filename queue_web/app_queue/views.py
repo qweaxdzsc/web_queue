@@ -1,10 +1,11 @@
 from django.shortcuts import render, HttpResponse, redirect
+from django.template.context_processors import csrf
 from app_queue import models
 from app_queue import utils
 import json
 # import threading
 import os
-print("http://localhost:8000/")
+
 field_dict = {
     0: None,
     1: 'order_id',
@@ -138,7 +139,13 @@ def fetch_tables(request):
 
     return render(request, 'index.html', parameters)
 
-# a = threading.Thread(target=utils.take_task, args=[models.WaitList, False])
-# a.start()
+
+def get_csrf(request):
+    csrf_token = str(csrf(request)['csrf_token'])
+    csrf_request_form = {
+        'header': {'Cookie': 'csrftoken=%s' % csrf_token},
+        'data': {'csrfmiddlewaretoken': csrf_token},
+    }
+    return HttpResponse(json.dumps(csrf_request_form))
 
 
