@@ -209,7 +209,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="select_main_app">主流程</label>
-                        <select class="custom-select" id="select_main_app">
+                        <select class="custom-select" id="select_main_app" name="select_main_app">
                             {% for app in main_apps %}
                                 <option value="{{app}}">{{app}}</option>
                             {% endfor%}
@@ -229,9 +229,10 @@
                     </div>
                     <div class="form-group">
                         {% for key, list in extend_apps_dict.items %}
-                            <label for="select_{{key}}" style="display: none">拓展流程</label>
-                            <select class="custom-select" id="select_{{key}}" style="display: none">
-                                <option value="none" class="{{key}}">无</option>
+                            <label for="select_{{key}}" class="select_extend" id="label_{{key}}" style="display: none">拓展流程</label>
+                            <select class="custom-select select_extend" id="select_{{key}}" name="select_{{key}}"
+                                    style="display: none" multiple="multiple">
+                                <option value="" class="{{key}}">无</option>
                                 {% for app in list %}
                                     <option value="{{app}}" class="{{key}}">{{app}}</option>
                                 {% endfor%}

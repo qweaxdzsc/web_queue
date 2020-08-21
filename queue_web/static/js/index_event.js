@@ -17,6 +17,9 @@ var get_local_file = function () {
             $('#input_local_file').val(data.path);
             $('#host_name').val(data.host_name);
             $('#local_ip').val(data.local_ip);
+            var main_app = $('#select_main_app').val();
+            $('#select_' + main_app).show();
+            $('#label_' + main_app).show();
         },
         error: function (e) {
             alert('连接本地插件异常');
@@ -59,6 +62,13 @@ var update_tables = function () {
 };
 
 
+var change_app = function () {
+    $('.select_extend').hide();
+    var main_app = $('#select_main_app').val();
+    $('#select_' + main_app).show();
+    $('#label_' + main_app).show();
+};
+
 $('#btn_add_mission').on('click', function () {
     get_local_file()
 });
@@ -83,6 +93,10 @@ $('#btn_filter_user_false').on('click', function () {
 
 $('#btn_search').on('click', function () {
     update_tables();
+});
+
+$('#select_main_app').on('change', function () {
+    change_app();
 });
 
 setInterval(function () {

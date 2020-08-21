@@ -63,48 +63,82 @@ def index(request):
 
 
 class AddProject(View):
+    main_app = str()
+    extend_app = list()
+    file_path = str()
+    user_name = str()
+    host_name = str()
+    local_ip = str()
+    account_email = str()
+    project_name = str()
+    mission_data = dict()
+
     def get(self, request):
         return HttpResponse('do not access by GET')
 
     def post(self, request):
         # get account email
         # print(request.POST)
-        file_path = request.POST.get('input_local_file')
-        iterations = request.POST.get('input_iter')
-        user_name = request.POST.get('user_name')
-        host_name = request.POST.get('host_name')
-        local_ip = request.POST.get('local_ip')
+        self.main_app = request.POST.get('select_main_app')
+        self.extend_app = request.POST.getlist('select_%s' % self.main_app)
+        self.file_path = request.POST.get('input_local_file')
+        self.user_name = request.POST.get('user_name')
+        self.host_name = request.POST.get('host_name')
+        self.local_ip = request.POST.get('local_ip')
+        self.account_email = self.user_name + '@estra-automotive.com'
 
-        account_email = user_name + '@estra-automotive.com'
-        project_address, file_name = os.path.split(file_path)
-        project_name, extension = os.path.splitext(file_name)
-        journal_path = '%s/%s.jou' % (project_address, project_name)
+        self.mission_data = self.form_mission_data()
+        # how to connect command with
 
-        order_id = utils.new_order_id(models.WaitList)
-        mission_data = {
-            "software": "fluent191_solver",
-            'project_name': project_name,
+        data_dict = {'order_id': order_id,
+                     'account_email': self.account_email,
+                     'exec_app': '',
+                     'sender_address': self.local_ip,
+                     'mission_name': self.project_name,
+                     'mission_data': self.mission_data,
+                     }
+        # utils.db_add_one(models.WaitList, data_dict)
+
+        return redirect('/')
+
+    def form_mission_data(self):
+        project_address, file_name = os.path.split(self.file_path)
+        self.project_name, extension = os.path.splitext(file_name)
+        journal_path = '%s/%s.jou' % (project_address, self.project_name)
+        order_id = utils.new_order_id(models.WaitList)          # TODO get by connect success and add to running list
+        # TODO get command and mpi decision
+        main_task = {
+            "software": self.main_app,
+            'project_name': self.project_name,
             "project_address": project_address,
-            'host_name': host_name,
+            'extension': extension,
+            'host_name': self.host_name,
             "journal": journal_path,
-            'iterations': iterations,
+            'iterations': 1000,
             "id": '105',
             "use_mpi": True,
             "mpi_host": {'DL5FWYWG2': 2, 'DL25TW5V2': 2},
             "command": r"3d -t4 -i G:/test/queue_test2/Test_V1_solve.jou -mpi=ibmmpi -cnf=mpi_host.txt",
         }
-        # how to connect command with
 
-        data_dict = {'order_id': order_id,
-                     'account_email': account_email,
-                     'exec_app': '',
-                     'sender_address': local_ip,
-                     'mission_name': project_name,
-                     'mission_data': mission_data,
-                     }
-        # utils.db_add_one(models.WaitList, data_dict)
+        self.mission_data[0] = main_task
+        for i, app in enumerate(self.extend_app):
+            if not app:
+                extend_task = {
+                    "software": app,
+                    'project_name': self.project_name,
+                    "project_address": project_address,
+                    'host_name': self.host_name,
+                    "journal": journal_path,
+                    'iterations': 1000,
+                    "id": '105',
+                    "use_mpi": True,
+                    "mpi_host": {'DL5FWYWG2': 2, 'DL25TW5V2': 2},
+                    "command": r"3d -t4 -i G:/test/queue_test2/Test_V1_solve.jou -mpi=ibmmpi -cnf=mpi_host.txt",
+                }
+                self.mission_data[i + 1] = extend_task
 
-        return redirect('/')
+        return self.mission_data
 
 
 def get_local_file(request):
