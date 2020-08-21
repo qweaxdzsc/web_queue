@@ -1,9 +1,10 @@
 var csrf = $('input[name="csrfmiddlewaretoken"]').val();
-var rnd = Math.random()
+var rnd = Math.random();
+// var user_name = $('#input_name').val();
 
 var get_local_file = function () {
     $.ajax({
-        url: 'http://127.0.0.1:8500/file',
+        url: 'http://localhost:37171/file',
         type: 'get',
         cache: 'false',
         data: {
@@ -14,7 +15,8 @@ var get_local_file = function () {
             console.log(data);
             $('#exampleModal').modal();
             $('#input_local_file').val(data.path);
-
+            $('#host_name').val(data.host_name);
+            $('#local_ip').val(data.local_ip);
         },
         error: function (e) {
             alert('连接本地插件异常');

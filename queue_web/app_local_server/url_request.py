@@ -19,7 +19,7 @@ task_dict0 = {
 
 task_dict1 = {
     "id": '105',
-    "software": "report_standard",
+    "software": "extend_report_standard",
     "use_mpi": False,
     "mpi_host": {},
     "command": r"",

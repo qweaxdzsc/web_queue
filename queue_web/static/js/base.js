@@ -1,25 +1,24 @@
 var auth = '';
 var event_login = function(){
     var csrf = $('input[name="csrfmiddlewaretoken"]').val();
-    var name = $('#input_name').val();
+    var user_name = $('#input_name').val();
     var pwd = $('#input_pwd').val();
     $.ajax({
         url:'/login/',
         type:'post',
         cache: 'false',
-        data: {name: name, pwd:pwd, csrfmiddlewaretoken:csrf},
+        data: {name: user_name, pwd:pwd, csrfmiddlewaretoken:csrf},
         datatype: 'json',
         success: function(data) {
             console.log(data);
             if(data.pass){
-               auth = data.authorization
-               window.location.reload()
+               auth = data.authorization;
+               window.location.reload();
             }
             else {
                 console.log($('#login_tip'));
                 $('#login_tip').text(data.error_info);
                 $('#login_tip').css('visibility','visible');
-
 
             };
         },

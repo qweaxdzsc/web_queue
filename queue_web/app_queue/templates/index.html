@@ -7,7 +7,7 @@
 
 {% block login_info %}
     {% if is_login == True %}
-        <div class="text-whit text-success btn user_info">Welcome {{user_name}}</div>
+        <div class="text-whit text-success btn user_info">Welcome {{user_name_short}}</div>
         <a id="btn_logout" href="/logout"
            class="btn btn-outline-success btn_sign_up">注销
         </a>
@@ -31,7 +31,7 @@
                     <option value="1">排队号</option>
                     <option selected value="2">账户邮箱</option>
                     <option value="3">任务名称</option>
-                    <option value="4">请求者地址</option>
+                    <option value="4">执行主流程</option>
                     <option value="5">注册时间</option>
                     <option value="6">开始时间</option>
                     <option value="7">用时</option>
@@ -80,7 +80,7 @@
                     <th class="item1">排队号</th>
                     <th class="item2">账户邮箱</th>
                     <th class="item3">任务名称</th>
-                    <th class="item4">请求者地址</th>
+                    <th class="item4">执行主流程</th>
                     <th class="item5">注册时间</th>
                     <th class="item6">开始时间</th>
                     <th class="item7">用时</th>
@@ -92,7 +92,7 @@
                     <td class="item1_td"></td>
                     <td>{{mission.account_email}}</td>
                     <td>{{mission.mission_name}}</td>
-                    <td>{{mission.sender_address}}</td>
+                    <td>{{mission.exec_app}}</td>
                     <td>{{mission.register_time}}</td>
                     <td>{{mission.start_time}}</td>
                     <td></td>
@@ -116,7 +116,7 @@
                     <th class="item1">排队号</th>
                     <th class="item2">账户邮箱</th>
                     <th class="item3">任务名称</th>
-                    <th class="item4">请求者地址</th>
+                    <th class="item4">执行主流程</th>
                     <th class="item5">注册时间</th>
                     <th class="item6">开始时间</th>
                     <th class="item7">用时</th>
@@ -128,7 +128,7 @@
                     <td class="item1_td">{{mission.order_id}}</td>
                     <td>{{mission.account_email}}</td>
                     <td>{{mission.mission_name}}</td>
-                    <td>{{mission.sender_address}}</td>
+                    <td>{{mission.exec_app}}</td>
                     <td>{{mission.register_time}}</td>
                     <td>{{mission.start_time}}</td>
                     <td></td>
@@ -155,7 +155,7 @@
                     <th class="item1">排队号</th>
                     <th class="item2">账户邮箱</th>
                     <th class="item3">任务名称</th>
-                    <th class="item4">请求者地址</th>
+                    <th class="item4">执行主流程</th>
                     <th class="item5">注册时间</th>
                     <th class="item6">开始时间</th>
                     <th class="item7">用时</th>
@@ -167,7 +167,7 @@
                     <td></td>
                     <td>{{mission.account_email}}</td>
                     <td>{{mission.mission_name}}</td>
-                    <td>{{mission.sender_address}}</td>
+                    <td>{{mission.exec_app}}</td>
                     <td>{{mission.register_time}}</td>
                     <td>{{mission.start_time}}</td>
                     <td>{{mission.used_time}}</td>
@@ -207,7 +207,14 @@
             <form action="/add/" method="post">
                 {% csrf_token %}
                 <div class="modal-body">
-
+                    <div class="form-group">
+                        <label for="select_main_app">主流程</label>
+                        <select class="custom-select" id="select_main_app">
+                            {% for app in main_apps %}
+                                <option value="{{app}}">{{app}}</option>
+                            {% endfor%}
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="input_local_file">项目文件</label>
                         <div class="input-group mb-3">
@@ -221,16 +228,25 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="input_iter">计算步数</label>
-                        <input type="number" class="form-control" value="1000" id="input_iter" name="input_iter">
+                        {% for key, list in extend_apps_dict.items %}
+                            <label for="select_{{key}}" style="display: none">拓展流程</label>
+                            <select class="custom-select" id="select_{{key}}" style="display: none">
+                                <option value="none" class="{{key}}">无</option>
+                                {% for app in list %}
+                                    <option value="{{app}}" class="{{key}}">{{app}}</option>
+                                {% endfor%}
+                            </select>
+                        {% endfor %}
                     </div>
-
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
                     <button type="submit" class="btn btn-primary" id="btn_mission_submit">提交</button>
                 </div>
+                    <input type="text" id="host_name" name="host_name" style="display:none" value="">
+                    <input type="text" id="local_ip" name="local_ip" style="display:none" value="">
+                    <input type="text" id="user_name" name="user_name" style="display:none" value="{{user_name}}">
             </form>
         </div>
     </div>

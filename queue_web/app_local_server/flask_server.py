@@ -14,7 +14,7 @@ class DoTasks(threading.Thread):
     def __init__(self, tasks_dict):
         super().__init__()
         self.tasks_dict = tasks_dict
-        self.app_dir = r'.\app'
+        self.app_dir = r'local_app'
         self.return_data = dict()
 
     def run(self):
@@ -38,7 +38,7 @@ class DoTasks(threading.Thread):
         self.return_result()
 
     def return_result(self):
-        url = "http://localhost:8000/receive_result/"
+        url = "http://localhost/receive_result/"
         response = self.post_request(url, self.return_data)
         response_content = response.read().decode()
         print(response_content)
@@ -52,7 +52,7 @@ class DoTasks(threading.Thread):
         :param new_dict: new data dict
         :return: urllib request response object
         """
-        response = urllib.request.urlopen("http://localhost:8000/get_csrf")
+        response = urllib.request.urlopen("http://localhost/get_csrf")
         csrf_dict = eval(response.read().decode())
         # stringify data dict to string
         data_dict = csrf_dict['data']
@@ -102,7 +102,7 @@ def get_local_file():
 
 
 if __name__ == '__main__':
-    print('test web:  http://localhost:8500/do_task')
-    app.run(debug=True, host='0.0.0.0', port='8500')
+    # print('test web:  http://localhost:37171/do_task')
+    app.run(debug=True, host='0.0.0.0', port='37171')
 
 

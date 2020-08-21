@@ -1,22 +1,25 @@
 from django.shortcuts import render, HttpResponse, redirect
+from django.views import View
 from django.template.context_processors import csrf
 from app_queue import models
 from app_queue import utils
 import json
 # import threading
 import os
+import time
 
 field_dict = {
     0: None,
     1: 'order_id',
     2: 'account_email',
     3: 'mission_name',
-    4: 'sender_address',
+    4: 'exec_app',
     5: 'register_time',
     6: 'start_time',
     7: 'used_time',
     8: 'id',
     9: 'mission_data',
+    10: 'sender_address',
 }
 
 list_obj = {
@@ -29,44 +32,79 @@ list_obj = {
 # Create your views here.
 def index(request):
     user_name = request.session.get('user_name')
+    user_name_short = ''
     is_login = False
     if user_name:
         is_login = True
-        user_name = user_name.split('.')[0]
+        user_name_short = user_name.split('.')[0]
+
+    main_apps = os.listdir('server_app')
+    extend_apps_dict = {}
+    for i, app in enumerate(main_apps):
+        extend_apps_list = []
+        file_list = os.listdir('server_app/%s' % app)
+        for file in file_list:
+            if file.startswith('extend_'):
+                app_name = file.replace('extend_', '')
+                extend_apps_list.append(app_name)
+        extend_apps_dict[app] = extend_apps_list
+
     parameters = {
         'error_info': '',
+        'user_name_short': user_name_short,
         'user_name': user_name,
         'is_login': is_login,
+        'main_apps': main_apps,
+        'extend_apps_dict': extend_apps_dict,
     }
     for list_name, obj in list_obj.items():
         parameters[list_name] = obj.all()
     return render(request, 'index.html', parameters)
 
 
-def add_project(request):
-    if request.method == 'POST':
+class AddProject(View):
+    def get(self, request):
+        return HttpResponse('do not access by GET')
+
+    def post(self, request):
+        # get account email
+        # print(request.POST)
         file_path = request.POST.get('input_local_file')
         iterations = request.POST.get('input_iter')
+        user_name = request.POST.get('user_name')
+        host_name = request.POST.get('host_name')
+        local_ip = request.POST.get('local_ip')
+
+        account_email = user_name + '@estra-automotive.com'
         project_address, file_name = os.path.split(file_path)
         project_name, extension = os.path.splitext(file_name)
         journal_path = '%s/%s.jou' % (project_address, project_name)
-        print(file_path)
-        print(iterations)
+
         order_id = utils.new_order_id(models.WaitList)
         mission_data = {
+            "software": "fluent191_solver",
             'project_name': project_name,
             "project_address": project_address,
+            'host_name': host_name,
             "journal": journal_path,
+            'iterations': iterations,
+            "id": '105',
+            "use_mpi": True,
+            "mpi_host": {'DL5FWYWG2': 2, 'DL25TW5V2': 2},
+            "command": r"3d -t4 -i G:/test/queue_test2/Test_V1_solve.jou -mpi=ibmmpi -cnf=mpi_host.txt",
         }
+        # how to connect command with
+
         data_dict = {'order_id': order_id,
-                     'account_email': "zonghui.jin@estra-automotive.com",
-                     'sender_address': '10.123.30.23',
+                     'account_email': account_email,
+                     'exec_app': '',
+                     'sender_address': local_ip,
                      'mission_name': project_name,
                      'mission_data': mission_data,
                      }
-        utils.db_add_one(models.WaitList, data_dict)
+        # utils.db_add_one(models.WaitList, data_dict)
 
-        return redirect("/")
+        return redirect('/')
 
 
 def get_local_file(request):
