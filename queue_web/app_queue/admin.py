@@ -4,15 +4,15 @@ from . import models
 
 
 class WaitListAdmin(admin.ModelAdmin):
-    list_display = ['id', 'order_id', 'account_email', 'sender_address', 'exec_app', 'mission_name', 'mission_data',
-                    'register_time', ]
+    list_display = ['id', 'order_id', 'account_email', 'sender_address', 'exec_app', 'mission_name',
+                    'short_mission_data', 'register_time', ]
     search_fields = ['id', 'order_id', 'account_email', 'sender_address', 'mission_name', 'exec_app', ]
     list_filter = ['id', 'order_id', 'sender_address', 'register_time', 'exec_app', ]
     ordering = ['order_id']
 
 
 class RunningListAdmin(admin.ModelAdmin):
-    list_display = ['id', 'account_email', 'sender_address', 'mission_name', 'mission_data', 'exec_app',
+    list_display = ['id', 'account_email', 'sender_address', 'mission_name', 'short_mission_data', 'exec_app',
                     'register_time', 'start_time']
     search_fields = ['id', 'account_email', 'sender_address', 'mission_name', 'exec_app', ]
     list_filter = ['id', 'sender_address', 'register_time', 'start_time', 'exec_app', ]
@@ -20,7 +20,7 @@ class RunningListAdmin(admin.ModelAdmin):
 
 
 class HistoryListAdmin(admin.ModelAdmin):
-    list_display = ['id', 'account_email', 'sender_address', 'mission_name', 'mission_data', 'exec_app',
+    list_display = ['id', 'account_email', 'sender_address', 'mission_name', 'short_mission_data', 'exec_app',
                     'register_time', 'start_time', 'used_time']
     search_fields = ['id',  'account_email', 'sender_address', 'mission_name', 'exec_app', ]
     list_filter = ['id', 'sender_address', 'register_time', 'start_time', 'used_time', 'exec_app', ]

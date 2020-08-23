@@ -74,6 +74,7 @@ class AddProject(View):
     account_email = str()
     project_name = str()
     mission_data = dict()
+    order_id = int()
 
     def get(self, request):
         return HttpResponse('do not access by GET')
@@ -90,27 +91,31 @@ class AddProject(View):
         self.cpu_left = request.POST.get('cpu_left')
         self.account_email = self.user_name + '@estra-automotive.com'
 
-        self.mission_data = self.form_mission_data()
-        # TODO test connect success and add to running list
-
+        self.order_id = utils.new_order_id(models.WaitList, self.main_app)
+        self.mission_data, error = self.form_mission_data()
+        if error:
+            return HttpResponse('exec %s error, please check %s under server_app' % self.main_app)
         data_dict = {
-            # 'order_id': order_id,
-                     'account_email': self.account_email,
-                     'exec_app': '',
-                     'sender_address': self.local_ip,
-                     'mission_name': self.project_name,
-                     'mission_data': self.mission_data,
-                     }
-        # utils.db_add_one(models.WaitList, data_dict)
+            'order_id': self.order_id,
+            'account_email': self.account_email,
+            'exec_app': self.main_app,
+            'sender_address': self.local_ip,
+            'mission_name': self.project_name,
+            'mission_data': self.mission_data,
+        }
+        if self.exec_available():
+            self.direct_run()
+        else:
+            self.add_to_queue(data_dict)
 
         return redirect('/')
 
     def form_mission_data(self):
+        error = False
         project_address, file_name = os.path.split(self.file_path)
         self.project_name, extension = os.path.splitext(file_name)
-        order_id = utils.new_order_id(models.WaitList)
-
         use_mpi, mpi_host = utils.thread_strategy(threads, self.host_name, self.cpu_left)
+
         main_task = {
             "software": self.main_app,
             'project_name': self.project_name,
@@ -118,15 +123,20 @@ class AddProject(View):
             'extension': extension,
             'host_name': self.host_name,
             'iterations': 1000,
-            "order_id": '105',              # order_id
+            "order_id": self.order_id,
             'threads': threads,
             "use_mpi": use_mpi,
             "mpi_host": mpi_host,
         }
-        # TODO get command
-        self.mission_data[0] = main_task
+        # get rest command
+        try:
+            exec(open(r'./server_app/%s/main.py' % self.main_app, 'r').read(), main_task)
+        except Exception as e:
+            error = True
+        else:
+            self.mission_data[0] = main_task
         for i, app in enumerate(self.extend_app):
-            if not app:
+            if app:
                 extend_task = {
                     "software": app,
                     'project_name': self.project_name,
@@ -134,14 +144,40 @@ class AddProject(View):
                     'extension': extension,
                     'host_name': self.host_name,
                     'iterations': 1000,
-                    "order_id": '105',
+                    "order_id": self.order_id,
                     'threads': threads,
                     "use_mpi": use_mpi,
                     "mpi_host": mpi_host,
                 }
+                # get rest command
                 self.mission_data[i + 1] = extend_task
 
-        return self.mission_data
+        return self.mission_data, error
+
+    def exec_available(self):
+        """
+        等待队列有无，有（取order_id最大值加1），
+        无，判断有无正在计算的，有（取order_id为1），
+        无，判断有无license和核数，有（发送信号计算，有响应则进入正在计算队列，无则），造一个虚拟定时任务
+        :return:
+        """
+        if self.order_id > 1:
+            return False
+        filter_dict = {'exec_app': self.main_app}
+        running_mission = models.RunningList.objects.filter(**filter_dict)
+        if running_mission:
+            return False
+        # TODO run license check
+        cpu_left = float(self.cpu_left) - 2
+        if threads > cpu_left:
+            return False
+        return True
+
+    def add_to_queue(self, data_dict):
+        utils.db_add_one(models.WaitList, data_dict)
+
+    def direct_run(self):
+        pass
 
 
 def get_local_file(request):
@@ -224,3 +260,11 @@ def get_csrf(request):
     return HttpResponse(json.dumps(csrf_request_form))
 
 
+def test(request):
+    main_app = 'fluent191_solvr'
+    filter_dict = {'exec_app': main_app}
+    running_mission = models.RunningList.objects.filter(**filter_dict)
+    if running_mission:
+        return HttpResponse('running')
+    else:
+        return HttpResponse('not running')

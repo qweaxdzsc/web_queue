@@ -14,8 +14,9 @@ def min_order_id(db_model):
     return order_id_dict['order_id__min']
 
 
-def new_order_id(db_model):
-    order_id_dict = db_model.objects.aggregate(Max('order_id'))
+def new_order_id(db_model, main_app):
+    filter_dict = {'exec_app': main_app}
+    order_id_dict = db_model.objects.filter(**filter_dict).aggregate(Max('order_id'))
     order_id = order_id_dict['order_id__max']
     if order_id:
         order_id += 1

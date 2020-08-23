@@ -13,7 +13,6 @@ task_info = {
     "command": r"3d -t4 -i G:/test/queue_test2/Test_V1_solve.jou -mpi=ibmmpi -cnf=mpi_host.txt",
 }
 
-
 print(os.getcwd())
 exec(open(r'./server_app/fluent191_solver/main.py', 'r').read(), task_info)
 print(task_info)

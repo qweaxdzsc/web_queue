@@ -7,7 +7,7 @@ class WaitList(models.Model):
     objects = models.Manager()                  # for reminder purpose
 
     id = models.AutoField('ID', primary_key=True)
-    order_id = models.IntegerField('队列ID', unique=True, auto_created=True)
+    order_id = models.IntegerField('队列ID')
     account_email = models.EmailField('账户邮箱', )
     sender_address = models.CharField('请求者地址', max_length=64)
     exec_app = models.CharField('执行主流程', max_length=128)
@@ -32,6 +32,15 @@ class WaitList(models.Model):
             'register_time': self.register_time,
         }
         return data_dict
+
+    def short_mission_data(self):
+        if len(str(self.mission_data)) > 30:
+            return '{}...'.format(str(self.mission_data)[0:29])
+        else:
+            return str(self.mission_data)
+
+    short_mission_data.allow_tags = True
+    short_mission_data.short_description = '任务详情'
 
     class Meta:
         ordering = ["order_id"]
@@ -58,6 +67,15 @@ class RunningList(models.Model):
         tip = """[ID: %s, Mission: %s, Account: %s] """ % (str(self.id), self.mission_name, self.account_email)
         return tip
 
+    def short_mission_data(self):
+        if len(str(self.mission_data)) > 30:
+            return '{}...'.format(str(self.mission_data)[0:29])
+        else:
+            return str(self.mission_data)
+
+    short_mission_data.allow_tags = True
+    short_mission_data.short_description = '任务详情'
+
     class Meta:
         ordering = ["start_time"]
         verbose_name = "正在计算队列"
@@ -82,6 +100,15 @@ class HistoryList(models.Model):
     def __str__(self):
         tip = """[ID: %s, Mission: %s, Account: %s] """ % (str(self.id), self.mission_name, self.account_email)
         return tip
+
+    def short_mission_data(self):
+        if len(str(self.mission_data)) > 30:
+            return '{}...'.format(str(self.mission_data)[0:29])
+        else:
+            return str(self.mission_data)
+
+    short_mission_data.allow_tags = True
+    short_mission_data.short_description = '任务详情'
 
     class Meta:
         ordering = ["id"]

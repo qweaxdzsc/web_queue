@@ -11,4 +11,5 @@ urlpatterns = [
     path(r'get_local_file/', views.get_local_file),
     path(r'receive_result/', views.receive_result),
     path(r'get_csrf/', views.get_csrf),
+    path(r'test/', views.test),
 ]
