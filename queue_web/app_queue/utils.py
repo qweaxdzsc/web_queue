@@ -1,6 +1,7 @@
 
 from app_queue import models
 from django.db.models import Min, Max
+import csv
 
 
 def max_order_id(db_model):
@@ -104,5 +105,36 @@ def check_keyword(keyword, condition_dict):
 
     return filter_dict, error_info
 
+
+def thread_strategy(threads, host_name, cpu_left):
+    """
+    This function is to determine how to dispatch cpu threads in the local cluster.
+    Since the local cluster is not yet being constructed, the strategy mainly for problems under 36 threads.
+    1. if sender itself have enough threads, use local instead of mpi(but it is not recommend, because the purpose
+    of this system is to use license more efficiently. In short, use as much threads as you can)
+    2. in most case, use 2 powerful CAE workstation first.
+    3. when use 3 hpc, or unlimited license. 2 CAE ws first, then the local, then use global
+    :param threads:
+    :param host_name:
+    :param cpu_left:
+    :return:
+    """
+    use_mpi = False
+    mpi_host = []
+    cpu_left = float(cpu_left) - 4
+
+    if cpu_left > threads and threads <= 12:
+        use_mpi = False
+        mpi_host = []
+    elif threads <= 36:
+        with open('./other/cluster_info.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if host_name == row['computer_name']:
+                    use_mpi = True
+        mpi_host = [['DL5FWYWG2', 10], ['DL5FWYWG2', 10], ['DL25TW5V2', 8], ['DL25TW5V2', 8]]
+    else:
+        pass                # launch new global strategy
+    return use_mpi, mpi_host
 
 

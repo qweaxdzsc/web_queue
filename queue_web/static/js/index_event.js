@@ -17,6 +17,7 @@ var get_local_file = function () {
             $('#input_local_file').val(data.path);
             $('#host_name').val(data.host_name);
             $('#local_ip').val(data.local_ip);
+            $('#cpu_left').val(data.cpu_left);
             var main_app = $('#select_main_app').val();
             $('#select_' + main_app).show();
             $('#label_' + main_app).show();

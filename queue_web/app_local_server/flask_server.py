@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 import os
+import subprocess
 import socket
 import threading
 import urllib.request
@@ -34,7 +35,7 @@ class DoTasks(threading.Thread):
                 else:
                     print(task_dict['mission_status'])
             self.return_data['%s_mission_status' % i] = task_dict['mission_status']
-        self.return_data['mission_id'] = task_dict['id']
+        self.return_data['order_id'] = task_dict['order_id']
         self.return_result()
 
     def return_result(self):
@@ -88,10 +89,12 @@ def get_local_file():
 
     host_name = socket.gethostname()
     local_ip = socket.gethostbyname(host_name)
+    cpu_left = cores_left()
     data = {
         'path': file_path,
         'host_name': host_name,
         'local_ip': local_ip,
+        'cpu_left': cpu_left,
     }
     response = make_response(data)
     # 设置响应请求头
@@ -99,6 +102,32 @@ def get_local_file():
     response.headers["Access-Control-Allow-Methods"] = 'GET'
     response.headers["Access-Control-Allow-Headers"] = "x-requested-with,content-type"
     return response
+
+
+@app.route('/cores')
+def get_cores_left():
+    cpu_left = cores_left()
+
+    return cpu_left
+
+
+def cores_left():
+    cores = 0
+    cpu_usage = 1
+    try:
+        cpu_usage = subprocess.getoutput("powershell (Get-WmiObject -Class Win32_Processor).LoadPercentage")
+        output_cores = subprocess.getoutput("powershell (get-wmiobject win32_processor).numberofcores")
+        cpu_usage = int(cpu_usage) / 100
+        if output_cores:
+            core_list = output_cores.split('\n')
+            for i in core_list:
+                cores += int(i)
+    except Exception as e:
+        print(e)
+
+    cpu_left = cores * (1 - cpu_usage)
+
+    return cpu_left
 
 
 if __name__ == '__main__':

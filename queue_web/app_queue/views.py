@@ -4,9 +4,8 @@ from django.template.context_processors import csrf
 from app_queue import models
 from app_queue import utils
 import json
-# import threading
 import os
-import time
+# import time
 
 field_dict = {
     0: None,
@@ -27,6 +26,8 @@ list_obj = {
     'waiting_list': models.WaitList.objects,
     'history_list': models.HistoryList.objects,
 }
+
+threads = 12
 
 
 # Create your views here.
@@ -69,6 +70,7 @@ class AddProject(View):
     user_name = str()
     host_name = str()
     local_ip = str()
+    cpu_left = int()
     account_email = str()
     project_name = str()
     mission_data = dict()
@@ -85,12 +87,14 @@ class AddProject(View):
         self.user_name = request.POST.get('user_name')
         self.host_name = request.POST.get('host_name')
         self.local_ip = request.POST.get('local_ip')
+        self.cpu_left = request.POST.get('cpu_left')
         self.account_email = self.user_name + '@estra-automotive.com'
 
         self.mission_data = self.form_mission_data()
-        # how to connect command with
+        # TODO test connect success and add to running list
 
-        data_dict = {'order_id': order_id,
+        data_dict = {
+            # 'order_id': order_id,
                      'account_email': self.account_email,
                      'exec_app': '',
                      'sender_address': self.local_ip,
@@ -104,23 +108,22 @@ class AddProject(View):
     def form_mission_data(self):
         project_address, file_name = os.path.split(self.file_path)
         self.project_name, extension = os.path.splitext(file_name)
-        journal_path = '%s/%s.jou' % (project_address, self.project_name)
-        order_id = utils.new_order_id(models.WaitList)          # TODO get by connect success and add to running list
-        # TODO get command and mpi decision
+        order_id = utils.new_order_id(models.WaitList)
+
+        use_mpi, mpi_host = utils.thread_strategy(threads, self.host_name, self.cpu_left)
         main_task = {
             "software": self.main_app,
             'project_name': self.project_name,
             "project_address": project_address,
             'extension': extension,
             'host_name': self.host_name,
-            "journal": journal_path,
             'iterations': 1000,
-            "id": '105',
-            "use_mpi": True,
-            "mpi_host": {'DL5FWYWG2': 2, 'DL25TW5V2': 2},
-            "command": r"3d -t4 -i G:/test/queue_test2/Test_V1_solve.jou -mpi=ibmmpi -cnf=mpi_host.txt",
+            "order_id": '105',              # order_id
+            'threads': threads,
+            "use_mpi": use_mpi,
+            "mpi_host": mpi_host,
         }
-
+        # TODO get command
         self.mission_data[0] = main_task
         for i, app in enumerate(self.extend_app):
             if not app:
@@ -128,13 +131,13 @@ class AddProject(View):
                     "software": app,
                     'project_name': self.project_name,
                     "project_address": project_address,
+                    'extension': extension,
                     'host_name': self.host_name,
-                    "journal": journal_path,
                     'iterations': 1000,
-                    "id": '105',
-                    "use_mpi": True,
-                    "mpi_host": {'DL5FWYWG2': 2, 'DL25TW5V2': 2},
-                    "command": r"3d -t4 -i G:/test/queue_test2/Test_V1_solve.jou -mpi=ibmmpi -cnf=mpi_host.txt",
+                    "order_id": '105',
+                    'threads': threads,
+                    "use_mpi": use_mpi,
+                    "mpi_host": mpi_host,
                 }
                 self.mission_data[i + 1] = extend_task
 
