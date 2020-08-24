@@ -128,7 +128,6 @@ class AddProject(View):
             "use_mpi": use_mpi,
             "mpi_host": mpi_host,
         }
-        # get rest command
         try:
             exec(open(r'./server_app/%s/main.py' % self.main_app, 'r').read(), main_task)
         except Exception as e:
