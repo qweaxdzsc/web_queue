@@ -44,6 +44,10 @@ def db_to_running(obj):
     obj.delete()
 
 
+def next_mission():
+    pass
+
+
 def key_exist(string_key, condition_dict):
     """
     check if the key is in condition_dict

@@ -5,7 +5,7 @@ from app_queue import models
 from app_queue import utils
 import json
 import os
-# import time
+import time
 
 field_dict = {
     0: None,
@@ -178,6 +178,17 @@ class AddProject(View):
 
     def direct_run(self):
         pass
+
+    def virtual_mission(self):
+        """
+        This function is design to solve the problem when have empty running list,
+        but without license. it need a trigger to check when have license available.
+        create virtual mission to occupy the running list, when it's done.
+        will call the next mission
+        :return:
+        """
+        time.sleep(10)      # TODO might need a thread
+        utils.next_mission()
 
 
 def get_local_file(request):
