@@ -122,18 +122,12 @@ class AddProject(View):
             "project_address": project_address,
             'extension': extension,
             'host_name': self.host_name,
-            'iterations': 1000,
             "order_id": self.order_id,
             'threads': threads,
             "use_mpi": use_mpi,
             "mpi_host": mpi_host,
         }
-        try:
-            exec(open(r'./server_app/%s/main.py' % self.main_app, 'r').read(), main_task)
-        except Exception as e:
-            error = True
-        else:
-            self.mission_data[0] = main_task
+        self.mission_data[0] = main_task
         for i, app in enumerate(self.extend_app):
             if app:
                 extend_task = {
@@ -142,13 +136,11 @@ class AddProject(View):
                     "project_address": project_address,
                     'extension': extension,
                     'host_name': self.host_name,
-                    'iterations': 1000,
                     "order_id": self.order_id,
                     'threads': threads,
                     "use_mpi": use_mpi,
                     "mpi_host": mpi_host,
                 }
-                # get rest command
                 self.mission_data[i + 1] = extend_task
 
         return self.mission_data, error
@@ -166,10 +158,16 @@ class AddProject(View):
         running_mission = models.RunningList.objects.filter(**filter_dict)
         if running_mission:
             return False
-        # TODO run license check
-        cpu_left = float(self.cpu_left) - 2
-        if threads > cpu_left:
+        # check if runnable, written in app, usually check license usage
+        check = {'threads': threads}
+        try:
+            exec(open(r'./server_app/%s/prerequisite.py' % self.main_app, 'r').read(), check)
+        except Exception as e:
             return False
+        else:
+            if not check['runnable']:
+                return False
+        # should check cpu cores
         return True
 
     def add_to_queue(self, data_dict):
