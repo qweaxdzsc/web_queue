@@ -232,7 +232,7 @@
                             <label for="select_{{key}}" class="select_extend" id="label_{{key}}" style="display: none">拓展流程</label>
                             <select class="custom-select select_extend" id="select_{{key}}" name="select_{{key}}"
                                     style="display: none" multiple="multiple">
-                                <option value="" class="{{key}}">无</option>
+                                <option value="" selected class="{{key}}">无</option>
                                 {% for app in list %}
                                     <option value="{{app}}" class="{{key}}">{{app}}</option>
                                 {% endfor%}

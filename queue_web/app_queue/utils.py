@@ -38,14 +38,12 @@ def get_first_mission(db_model):
 
 def db_to_running(obj):
     data_dict = obj.get_data_dict()
-    data_dict.pop('id')
-    data_dict.pop('order_id')
     db_add_one(models.RunningList, data_dict)
     obj.delete()
 
 
 def next_mission():
-    pass
+    print('bring next mission')
 
 
 def key_exist(string_key, condition_dict):

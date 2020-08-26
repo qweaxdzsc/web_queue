@@ -28,14 +28,15 @@ class DoTasks(threading.Thread):
             if task_dict['software'] in app_list:
                 script_path = '%s/%s/main.py' % (self.app_dir, task_dict['software'])
                 try:
-                    print('pass')
-                    # exec(open(script_path, 'r').read(), task_dict)
+                    # print('pass')
+                    exec(open(script_path, 'r').read(), task_dict)
                 except Exception as e:
                     print(e)
                 else:
                     print(task_dict['mission_status'])
             self.return_data['%s_mission_status' % i] = task_dict['mission_status']
         self.return_data['order_id'] = task_dict['order_id']
+        self.return_data['software'] = task_dict['software']
         self.return_result()
 
     def return_result(self):
@@ -112,21 +113,21 @@ def get_cores_left():
 
 
 def cores_left():
-    cores = 0
-    cpu_usage = 1
+    cpu_left = 0
     try:
         cpu_usage = subprocess.getoutput("powershell (Get-WmiObject -Class Win32_Processor).LoadPercentage")
         output_cores = subprocess.getoutput("powershell (get-wmiobject win32_processor).numberofcores")
-        cpu_usage = int(cpu_usage) / 100
+        percent_list = cpu_usage.split('\n')
+        if len(percent_list) is not 2:
+            percent_list = [0, 0]
         if output_cores:
             core_list = output_cores.split('\n')
-            for i in core_list:
-                cores += int(i)
+            for i in range(len(core_list)):
+                cpu_usage = int(percent_list[i]) / 100
+                cpu_left += int(core_list[i]) * (1 - cpu_usage)
+
     except Exception as e:
         print(e)
-
-    cpu_left = cores * (1 - cpu_usage)
-
     return cpu_left
 
 

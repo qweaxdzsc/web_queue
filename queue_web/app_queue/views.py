@@ -6,6 +6,9 @@ from app_queue import utils
 import json
 import os
 import time
+import threading
+import urllib.request
+import urllib.parse
 
 field_dict = {
     0: None,
@@ -81,7 +84,7 @@ class AddProject(View):
 
     def post(self, request):
         # get account email
-        # print(request.POST)
+        print("new mission submit")
         self.main_app = request.POST.get('select_main_app')
         self.extend_app = request.POST.getlist('select_%s' % self.main_app)
         self.file_path = request.POST.get('input_local_file')
@@ -104,7 +107,7 @@ class AddProject(View):
             'mission_data': self.mission_data,
         }
         if self.exec_available():
-            self.direct_run()
+            self.direct_run(data_dict)
         else:
             self.add_to_queue(data_dict)
 
@@ -152,6 +155,7 @@ class AddProject(View):
         无，判断有无license和核数，有（发送信号计算，有响应则进入正在计算队列，无则），造一个虚拟定时任务
         :return:
         """
+        # waiting list have none in front
         if self.order_id > 1:
             return False
         filter_dict = {'exec_app': self.main_app}
@@ -162,10 +166,13 @@ class AddProject(View):
         check = {'threads': threads}
         try:
             exec(open(r'./server_app/%s/prerequisite.py' % self.main_app, 'r').read(), check)
+            print('have license: ',  check['runnable'])
         except Exception as e:
+            self.virtual_mission()
             return False
         else:
             if not check['runnable']:
+                self.virtual_mission()
                 return False
         # should check cpu cores
         return True
@@ -173,8 +180,16 @@ class AddProject(View):
     def add_to_queue(self, data_dict):
         utils.db_add_one(models.WaitList, data_dict)
 
-    def direct_run(self):
-        pass
+    def direct_run(self, data_dict):
+        # send mission to local to run
+        print('direct run')
+        data_string = urllib.parse.urlencode(self.mission_data)
+        last_data = bytes(data_string, encoding='utf-8')
+        response = urllib.request.urlopen("http://%s:37171/get_task" % self.host_name, data=last_data)
+        dict = response.read().decode('utf-8')
+        print('response from local', dict)
+        # TODO add to running list, register time has to be recorded
+        # utils.db_add_one(models.RunningList, data_dict)
 
     def virtual_mission(self):
         """
@@ -184,8 +199,7 @@ class AddProject(View):
         will call the next mission
         :return:
         """
-        time.sleep(10)      # TODO might need a thread
-        utils.next_mission()
+        threading.Timer(10, utils.next_mission())
 
 
 def get_local_file(request):
@@ -209,7 +223,14 @@ def receive_result(request):
     :return:
     """
     if request.method == 'POST':
-        print(request.POST)
+        main_app = request.POST.get('software')
+        order_id = request.POST.get('order_id')
+        mission_status = request.POST.get('0_mission_status')  # get all mission status, save to mission data
+        filter_dict = {
+            'exec_app': main_app,
+            'order_id': order_id,
+        }
+        finished_mission = models.RunningList.objects.filter(**filter_dict)
     return HttpResponse('django server received result')
 
 
@@ -269,10 +290,19 @@ def get_csrf(request):
 
 
 def test(request):
-    main_app = 'fluent191_solvr'
-    filter_dict = {'exec_app': main_app}
-    running_mission = models.RunningList.objects.filter(**filter_dict)
-    if running_mission:
-        return HttpResponse('running')
-    else:
-        return HttpResponse('not running')
+    main_app = 'fluent191_solver'
+    order_id = '1'
+    filter_dict = {
+        'exec_app': main_app,
+        'order_id': order_id,
+    }
+    finished_mission = models.RunningList.objects.filter(**filter_dict).first()
+    print(finished_mission)
+    data_dict = finished_mission.get_data_dict()
+    # add to history
+    user_obj = models.HistoryList(**data_dict)
+    user_obj.save()
+    # delete self
+    finished_mission.delete()
+    utils.next_mission()
+    return HttpResponse(finished_mission)
