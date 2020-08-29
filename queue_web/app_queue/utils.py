@@ -1,7 +1,7 @@
-
 from app_queue import models
 from django.db.models import Min, Max
 import csv
+import threading
 
 
 def max_order_id(db_model):
@@ -42,8 +42,31 @@ def db_to_running(obj):
     obj.delete()
 
 
-def next_mission():
+def next_mission(main_app):
     print('bring next mission')
+
+
+def virtual_mission(main_app):
+    """
+    This function is design to solve the problem when have empty running list,
+    but without license. it need a trigger to check when have license available.
+    create virtual mission to occupy the running list, when it's done.
+    will call the next mission
+    :return:
+    """
+    threading.Timer(10, next_mission, args=(main_app, ))
+
+
+def app_prerequisite(check_dict, main_app):
+    try:
+        exec(open(r'./server_app/%s/prerequisite.py' % main_app, 'r').read(), check_dict)
+        print('have license: ', check_dict['runnable'])
+    except Exception as e:
+        return False
+    else:
+        if not check_dict['runnable']:
+            return False
+    return True
 
 
 def key_exist(string_key, condition_dict):

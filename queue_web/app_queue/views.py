@@ -5,8 +5,7 @@ from app_queue import models
 from app_queue import utils
 import json
 import os
-import time
-import threading
+import datetime
 import urllib.request
 import urllib.parse
 
@@ -107,7 +106,7 @@ class AddProject(View):
             'mission_data': self.mission_data,
         }
         if self.exec_available():
-            self.direct_run(data_dict)
+            self.exec_mission(data_dict)
         else:
             self.add_to_queue(data_dict)
 
@@ -164,23 +163,17 @@ class AddProject(View):
             return False
         # check if runnable, written in app, usually check license usage
         check = {'threads': threads}
-        try:
-            exec(open(r'./server_app/%s/prerequisite.py' % self.main_app, 'r').read(), check)
-            print('have license: ',  check['runnable'])
-        except Exception as e:
-            self.virtual_mission()
+        runnable = utils.app_prerequisite(check, self.main_app)
+        if not runnable:
+            utils.virtual_mission(self.main_app)
             return False
-        else:
-            if not check['runnable']:
-                self.virtual_mission()
-                return False
         # should check cpu cores
         return True
 
     def add_to_queue(self, data_dict):
         utils.db_add_one(models.WaitList, data_dict)
 
-    def direct_run(self, data_dict):
+    def exec_mission(self, data_dict):
         # send mission to local to run
         print('direct run')
         data_string = urllib.parse.urlencode(self.mission_data)
@@ -188,18 +181,9 @@ class AddProject(View):
         response = urllib.request.urlopen("http://%s:37171/get_task" % self.host_name, data=last_data)
         dict = response.read().decode('utf-8')
         print('response from local', dict)
-        # TODO add to running list, register time has to be recorded
-        # utils.db_add_one(models.RunningList, data_dict)
-
-    def virtual_mission(self):
-        """
-        This function is design to solve the problem when have empty running list,
-        but without license. it need a trigger to check when have license available.
-        create virtual mission to occupy the running list, when it's done.
-        will call the next mission
-        :return:
-        """
-        threading.Timer(10, utils.next_mission())
+        # add to running list
+        data_dict['register_time'] = datetime.datetime.now()
+        utils.db_add_one(models.RunningList, data_dict)
 
 
 def get_local_file(request):
@@ -230,7 +214,16 @@ def receive_result(request):
             'exec_app': main_app,
             'order_id': order_id,
         }
-        finished_mission = models.RunningList.objects.filter(**filter_dict)
+        finished_mission = models.RunningList.objects.filter(**filter_dict).first()
+        print(finished_mission)
+        data_dict = finished_mission.get_data_dict()
+        # add to history
+        user_obj = models.HistoryList(**data_dict)
+        user_obj.save()
+        # delete self
+        finished_mission.delete()
+        # next mission
+
     return HttpResponse('django server received result')
 
 
@@ -304,5 +297,11 @@ def test(request):
     user_obj.save()
     # delete self
     finished_mission.delete()
-    utils.next_mission()
+    # next mission
+    check = {'threads': threads}
+    available = utils.app_prerequisite(check, main_app)
+    if available:
+        utils.next_mission(main_app)
+    else:
+        utils.virtual_mission(main_app)
     return HttpResponse(finished_mission)
