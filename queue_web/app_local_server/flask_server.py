@@ -1,11 +1,13 @@
-import tkinter as tk
-from tkinter import filedialog
 import os
 import subprocess
 import socket
 import threading
 import urllib.request
 import urllib.parse
+import tkinter as tk
+from tkinter import filedialog
+from psutil import cpu_percent, cpu_count
+
 from flask import Flask, make_response, request, send_from_directory
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -107,27 +109,16 @@ def get_local_file():
 
 @app.route('/cores')
 def get_cores_left():
-    cpu_left = cores_left()
+    cpu_left = str(cores_left())
 
     return cpu_left
 
 
 def cores_left():
-    cpu_left = 0
-    try:
-        cpu_usage = subprocess.getoutput("powershell (Get-WmiObject -Class Win32_Processor).LoadPercentage")
-        output_cores = subprocess.getoutput("powershell (get-wmiobject win32_processor).numberofcores")
-        percent_list = cpu_usage.split('\n')
-        if len(percent_list) is not 2:
-            percent_list = [0, 0]
-        if output_cores:
-            core_list = output_cores.split('\n')
-            for i in range(len(core_list)):
-                cpu_usage = int(percent_list[i]) / 100
-                cpu_left += int(core_list[i]) * (1 - cpu_usage)
+    cpu_usage = cpu_percent(0.1)
+    output_cores = cpu_count()
+    cpu_left = output_cores * (1 - cpu_usage/100)
 
-    except Exception as e:
-        print(e)
     return cpu_left
 
 #
@@ -137,6 +128,7 @@ def cores_left():
 #     file_name = 'freecad.7z'
 #     return send_from_directory(directory, filename=file_name, as_attachment=True)
 #
+
 
 if __name__ == '__main__':
     # print('test web:  http://localhost:37171/do_task')

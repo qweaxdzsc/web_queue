@@ -3,6 +3,8 @@ from django.db.models import Min, Max
 import csv
 import threading
 import datetime
+from django.utils.timezone import utc
+
 import urllib.request
 import urllib.parse
 
@@ -51,28 +53,32 @@ def next_mission(main_app, check_dict, pre_check=False):
     mission = get_first_mission(models.WaitList, main_app)
     if mission:
         data_dict = mission.get_data_dict()
+        data_dict['mission_data'] = eval(data_dict['mission_data'])  # convert str from database to dict
         if pre_check:
             available = app_prerequisite(check_dict, main_app)
             if available:
                 exec_mission(data_dict)
+                print('perform delete')
+                mission.delete()
                 print('exec_mission')
             else:
                 virtual_mission(main_app, check_dict)
         else:
             exec_mission(data_dict)
+            mission.delete()
             print('exec_mission')
 
 
 def exec_mission(data_dict):
     # send mission to local to run
-    print('direct run')
+    print('exec mission')
     data_string = urllib.parse.urlencode(data_dict['mission_data'])
     last_data = bytes(data_string, encoding='utf-8')
-    response = urllib.request.urlopen("http://%s:37171/get_task" % data_dict['host_name'], data=last_data)
+    response = urllib.request.urlopen("http://%s:37171/get_task" % data_dict['sender_address'], data=last_data)
     dict = response.read().decode('utf-8')
     print('response from local', dict)
     # add to running list
-    data_dict['register_time'] = datetime.datetime.now()
+    data_dict['register_time'] = datetime.datetime.utcnow().replace(tzinfo=utc)
     db_add_one(models.RunningList, data_dict)
 
 
@@ -84,7 +90,9 @@ def virtual_mission(main_app, check_dict):
     will call the next mission
     :return:
     """
-    threading.Timer(10, next_mission, args=(main_app, check_dict, True, ))
+    print('create virtual mission')
+    timer = threading.Timer(10, next_mission, args=(main_app, check_dict, True, ))
+    timer.start()
 
 
 def app_prerequisite(check_dict, main_app):

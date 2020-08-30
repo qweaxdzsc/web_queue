@@ -10,6 +10,7 @@ django = "*"
 django-stubs = "*"
 flask = "*"
 pyinstaller = "*"
+psutil = "*"
 
 [requires]
 python_version = "3.7"

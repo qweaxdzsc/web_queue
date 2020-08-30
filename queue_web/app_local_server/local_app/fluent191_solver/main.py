@@ -127,7 +127,7 @@ if use_mpi:
     mpi_setting = '-mpi=ibmmpi -cnf=mpi_host.txt'
     mpi_file = '%s/mpi_host.txt' % project_address
     with open(mpi_file, 'w') as f:
-        for hose_name, cores in mpi_host.items():
+        for hose_name, cores in mpi_host:
             f.write('%s:%s\n' % (hose_name, cores))
 
 # get journal_path
@@ -144,7 +144,8 @@ print('application path:', app_path)
 disk = project_address[:2]
 
 # get make journal
-if extension is not '.jou':
+if extension != '.jou':
+    print('make journal')
     make_journal(project_address, project_name, extension, journal_path, iterations)
 
 # main start

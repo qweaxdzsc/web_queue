@@ -277,29 +277,27 @@ def get_csrf(request):
 
 
 def test(request):
-    # main_app = 'fluent191_solver'
-    # order_id = '1'
-    # filter_dict = {
-    #     'exec_app': main_app,
-    #     'order_id': order_id,
-    # }
-    # finished_mission = models.RunningList.objects.filter(**filter_dict).first()
-    # print(finished_mission)
-    # data_dict = finished_mission.get_data_dict()
-    # # add to history
-    # user_obj = models.HistoryList(**data_dict)
-    # user_obj.save()
-    # # delete self
-    # finished_mission.delete()
-    # # next mission
-    check = {'threads': threads}
-    # available = utils.app_prerequisite(check, main_app)
-    # if available:
-    #     utils.next_mission(main_app)
-    # else:
-    #     utils.virtual_mission(main_app)
     main_app = 'fluent191_solver'
-    mission = utils.next_mission(main_app, check)
-    print(mission)
+    check_dict = {'threads': threads}
+    pre_check = True
+    mission = utils.get_first_mission(models.WaitList, main_app)
+    if mission:
+        data_dict = mission.get_data_dict()
+        data_dict['mission_data'] = eval(data_dict['mission_data'])  # convert str from database to dict
+        if pre_check:
+            available = utils.app_prerequisite(check_dict, main_app)
+            if available:
+                # utils.exec_mission(data_dict)
+                print('perform delete')
+                mission.delete()
+                print('exec_mission')
+            else:
+                print('virtual')
+                # utils.virtual_mission(main_app, check_dict)
+        else:
+            print('perform delete')
+            mission.delete()
+            # utils.exec_mission(data_dict)
+            print('exec_mission')
 
-    return HttpResponse(mission)
+    return HttpResponse('hello test')
