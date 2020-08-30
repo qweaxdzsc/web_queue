@@ -6,7 +6,7 @@ import socket
 import threading
 import urllib.request
 import urllib.parse
-from flask import Flask, make_response, request
+from flask import Flask, make_response, request, send_from_directory
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
@@ -130,6 +130,13 @@ def cores_left():
         print(e)
     return cpu_left
 
+#
+# @app.route('/download')
+# def download():
+#     directory = r'C:\Users\zonghui\Desktop'
+#     file_name = 'freecad.7z'
+#     return send_from_directory(directory, filename=file_name, as_attachment=True)
+#
 
 if __name__ == '__main__':
     # print('test web:  http://localhost:37171/do_task')

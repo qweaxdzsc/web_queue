@@ -2,6 +2,9 @@ from app_queue import models
 from django.db.models import Min, Max
 import csv
 import threading
+import datetime
+import urllib.request
+import urllib.parse
 
 
 def max_order_id(db_model):
@@ -31,8 +34,9 @@ def db_add_one(db_model, data_dict):
     user_obj.save()
 
 
-def get_first_mission(db_model):
-    obj = db_model.objects.all().order_by("order_id").first()
+def get_first_mission(db_model, exec_app):
+    filter_dict = {'exec_app': exec_app}
+    obj = db_model.objects.filter(**filter_dict).order_by("order_id").first()
     return obj
 
 
@@ -42,11 +46,37 @@ def db_to_running(obj):
     obj.delete()
 
 
-def next_mission(main_app):
+def next_mission(main_app, check_dict, pre_check=False):
     print('bring next mission')
+    mission = get_first_mission(models.WaitList, main_app)
+    if mission:
+        data_dict = mission.get_data_dict()
+        if pre_check:
+            available = app_prerequisite(check_dict, main_app)
+            if available:
+                exec_mission(data_dict)
+                print('exec_mission')
+            else:
+                virtual_mission(main_app, check_dict)
+        else:
+            exec_mission(data_dict)
+            print('exec_mission')
 
 
-def virtual_mission(main_app):
+def exec_mission(data_dict):
+    # send mission to local to run
+    print('direct run')
+    data_string = urllib.parse.urlencode(data_dict['mission_data'])
+    last_data = bytes(data_string, encoding='utf-8')
+    response = urllib.request.urlopen("http://%s:37171/get_task" % data_dict['host_name'], data=last_data)
+    dict = response.read().decode('utf-8')
+    print('response from local', dict)
+    # add to running list
+    data_dict['register_time'] = datetime.datetime.now()
+    db_add_one(models.RunningList, data_dict)
+
+
+def virtual_mission(main_app, check_dict):
     """
     This function is design to solve the problem when have empty running list,
     but without license. it need a trigger to check when have license available.
@@ -54,7 +84,7 @@ def virtual_mission(main_app):
     will call the next mission
     :return:
     """
-    threading.Timer(10, next_mission, args=(main_app, ))
+    threading.Timer(10, next_mission, args=(main_app, check_dict, True, ))
 
 
 def app_prerequisite(check_dict, main_app):

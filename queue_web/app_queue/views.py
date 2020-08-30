@@ -106,7 +106,7 @@ class AddProject(View):
             'mission_data': self.mission_data,
         }
         if self.exec_available():
-            self.exec_mission(data_dict)
+            utils.exec_mission(data_dict)
         else:
             self.add_to_queue(data_dict)
 
@@ -165,25 +165,13 @@ class AddProject(View):
         check = {'threads': threads}
         runnable = utils.app_prerequisite(check, self.main_app)
         if not runnable:
-            utils.virtual_mission(self.main_app)
+            utils.virtual_mission(self.main_app, check)
             return False
         # should check cpu cores
         return True
 
     def add_to_queue(self, data_dict):
         utils.db_add_one(models.WaitList, data_dict)
-
-    def exec_mission(self, data_dict):
-        # send mission to local to run
-        print('direct run')
-        data_string = urllib.parse.urlencode(self.mission_data)
-        last_data = bytes(data_string, encoding='utf-8')
-        response = urllib.request.urlopen("http://%s:37171/get_task" % self.host_name, data=last_data)
-        dict = response.read().decode('utf-8')
-        print('response from local', dict)
-        # add to running list
-        data_dict['register_time'] = datetime.datetime.now()
-        utils.db_add_one(models.RunningList, data_dict)
 
 
 def get_local_file(request):
@@ -223,6 +211,12 @@ def receive_result(request):
         # delete self
         finished_mission.delete()
         # next mission
+        check = {'threads': threads}
+        available = utils.app_prerequisite(check, main_app)
+        if available:
+            utils.next_mission(main_app, check)
+        else:
+            utils.virtual_mission(main_app, check)
 
     return HttpResponse('django server received result')
 
@@ -283,25 +277,29 @@ def get_csrf(request):
 
 
 def test(request):
-    main_app = 'fluent191_solver'
-    order_id = '1'
-    filter_dict = {
-        'exec_app': main_app,
-        'order_id': order_id,
-    }
-    finished_mission = models.RunningList.objects.filter(**filter_dict).first()
-    print(finished_mission)
-    data_dict = finished_mission.get_data_dict()
-    # add to history
-    user_obj = models.HistoryList(**data_dict)
-    user_obj.save()
-    # delete self
-    finished_mission.delete()
-    # next mission
+    # main_app = 'fluent191_solver'
+    # order_id = '1'
+    # filter_dict = {
+    #     'exec_app': main_app,
+    #     'order_id': order_id,
+    # }
+    # finished_mission = models.RunningList.objects.filter(**filter_dict).first()
+    # print(finished_mission)
+    # data_dict = finished_mission.get_data_dict()
+    # # add to history
+    # user_obj = models.HistoryList(**data_dict)
+    # user_obj.save()
+    # # delete self
+    # finished_mission.delete()
+    # # next mission
     check = {'threads': threads}
-    available = utils.app_prerequisite(check, main_app)
-    if available:
-        utils.next_mission(main_app)
-    else:
-        utils.virtual_mission(main_app)
-    return HttpResponse(finished_mission)
+    # available = utils.app_prerequisite(check, main_app)
+    # if available:
+    #     utils.next_mission(main_app)
+    # else:
+    #     utils.virtual_mission(main_app)
+    main_app = 'fluent191_solver'
+    mission = utils.next_mission(main_app, check)
+    print(mission)
+
+    return HttpResponse(mission)

@@ -125,6 +125,21 @@ class HistoryList(models.Model):
     short_mission_data.allow_tags = True
     short_mission_data.short_description = '任务详情'
 
+    def get_data_dict(self):
+        data_dict = {
+            'id': self.id,
+            'order_id': self.order_id,
+            'account_email': self.account_email,
+            'sender_address': self.sender_address,
+            'exec_app': self.exec_app,
+            'mission_name': self.mission_name,
+            'mission_data': self.mission_data,
+            'register_time': self.register_time,
+            'start_time': self.start_time,
+            'used_time': self.used_time,
+        }
+        return data_dict
+
     class Meta:
         ordering = ["id"]
         verbose_name = "历史记录队列"
