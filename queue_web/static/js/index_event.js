@@ -103,3 +103,44 @@ $('#select_main_app').on('change', function () {
 setInterval(function () {
     update_tables();
 }, 20000);
+
+
+// $(window).scroll(function() {
+//     var srollPos = $(window).scrollTop(); 
+//     totalheight = parseFloat($(window).height()) + parseFloat(srollPos);
+//     console.log(totalheight);
+//     if(($(document).height() - 0) <= totalheight && num != maxnum) {
+//     //把要添加的数据写到下面函数中，即可实现滚动添加
+//     console.log('scroll')
+//     //num++;
+//     }
+//   }); 
+// function scroll(){
+//     //console.log("打印log日志");实时看下效果
+//     console.log("开始滚动！");
+// }
+
+// var scrollFunc = function (e) {  
+//     e = e || window.event;  
+//     if (e.wheelDelta) {  //第一步：先判断浏览器IE，谷歌滑轮事件               
+//         if (e.wheelDelta > 0) { //当滑轮向上滚动时  
+//             console.log("滑轮向上滚动");  
+//         }  
+//         if (e.wheelDelta < 0) { //当滑轮向下滚动时  
+//             console.log("滑轮向下滚动");  
+//         }  
+//     } else if (e.detail) {  //Firefox滑轮事件  
+//         if (e.detail> 0) { //当滑轮向上滚动时  
+//             console.log("滑轮向上滚动");  
+//         }  
+//         if (e.detail< 0) { //当滑轮向下滚动时  
+//             console.log("滑轮向下滚动");  
+//         }  
+//     }  
+// }
+// //给页面绑定滑轮滚动事件  
+// if (document.addEventListener) {//firefox  
+//     document.addEventListener('DOMMouseScroll', scrollFunc, false);  
+// }  
+// //滚动滑轮触发scrollFunc方法  //ie 谷歌  
+// window.onmousewheel = document.onmousewheel = scrollFunc;

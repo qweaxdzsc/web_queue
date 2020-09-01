@@ -61,7 +61,12 @@ def index(request):
         'extend_apps_dict': extend_apps_dict,
     }
     for list_name, obj in list_obj.items():
-        parameters[list_name] = obj.all()
+        missions = obj.all()
+        mission_number = missions.count()
+        if mission_number > 20:
+            missions = missions[:21]
+        parameters[list_name] = missions
+
     return render(request, 'index.html', parameters)
 
 
@@ -258,6 +263,9 @@ def fetch_tables(request):
     for list_name, obj in list_obj.items():
         try:
             list_fetched = obj.filter(**filter_dict)
+            mission_number = list_fetched.count()
+            if mission_number > 20:
+                list_fetched = list_fetched[:21]
         except Exception as e:
             print(e)
             parameters['error_info'] = 'fetch data failed, please check search keyword'
@@ -277,27 +285,14 @@ def get_csrf(request):
 
 
 def test(request):
-    main_app = 'fluent191_solver'
-    check_dict = {'threads': threads}
-    pre_check = True
-    mission = utils.get_first_mission(models.WaitList, main_app)
-    if mission:
-        data_dict = mission.get_data_dict()
-        data_dict['mission_data'] = eval(data_dict['mission_data'])  # convert str from database to dict
-        if pre_check:
-            available = utils.app_prerequisite(check_dict, main_app)
-            if available:
-                # utils.exec_mission(data_dict)
-                print('perform delete')
-                mission.delete()
-                print('exec_mission')
-            else:
-                print('virtual')
-                # utils.virtual_mission(main_app, check_dict)
-        else:
-            print('perform delete')
-            mission.delete()
-            # utils.exec_mission(data_dict)
-            print('exec_mission')
+    # total_missions = models.HistoryList.objects.all()
+    # print(len(total_missions))
+    finished_mission = models.HistoryList.objects.all().first()
+    print(finished_mission)
+    data_dict = finished_mission.get_data_dict()
+    # add to history
+    data_dict.pop('id')
+    user_obj = models.HistoryList(**data_dict)
+    user_obj.save()
 
-    return HttpResponse('hello test')
+    return HttpResponse('add success')
