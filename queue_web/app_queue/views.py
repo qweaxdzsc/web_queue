@@ -5,10 +5,11 @@ from app_queue import models
 from app_queue import utils
 import json
 import os
-import datetime
-import urllib.request
-import urllib.parse
+# import datetime
+# import urllib.request
+# import urllib.parse
 
+# --------global variable--------
 field_dict = {
     0: None,
     1: 'order_id',
@@ -30,12 +31,14 @@ list_obj = {
 }
 
 threads = 12
+queue_pause = False
 
 
 # Create your views here.
 def index(request):
     user_name = request.session.get('user_name')
     user_name_short = ''
+    user_auth = request.session.get('authorization')
     is_login = False
     if user_name:
         is_login = True
@@ -56,6 +59,7 @@ def index(request):
         'error_info': '',
         'user_name_short': user_name_short,
         'user_name': user_name,
+        'user_auth': user_auth,
         'is_login': is_login,
         'main_apps': main_apps,
         'extend_apps_dict': extend_apps_dict,
@@ -285,14 +289,6 @@ def get_csrf(request):
 
 
 def test(request):
-    # total_missions = models.HistoryList.objects.all()
-    # print(len(total_missions))
-    finished_mission = models.HistoryList.objects.all().first()
-    print(finished_mission)
-    data_dict = finished_mission.get_data_dict()
-    # add to history
-    data_dict.pop('id')
-    user_obj = models.HistoryList(**data_dict)
-    user_obj.save()
-
-    return HttpResponse('add success')
+    queue_pause = request.GET.get('pause')
+    print(queue_pause)
+    return HttpResponse(queue_pause)

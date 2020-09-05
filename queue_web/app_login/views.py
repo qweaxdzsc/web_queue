@@ -32,6 +32,7 @@ def login(request):
                 user_auth['pass'] = True
                 user_auth['authorization'] = pwd_check.first().authorization
                 request.session['user_name'] = name
+                request.session['authorization'] = pwd_check.first().authorization
         return HttpResponse(json.dumps(user_auth, ensure_ascii=False), content_type="application/json")
 
     return render(request, 'login.html')

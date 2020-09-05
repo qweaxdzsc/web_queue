@@ -70,6 +70,33 @@ var change_app = function () {
     $('#label_' + main_app).show();
 };
 
+
+var pause_queue = function () {
+    $.ajax({
+        url: '/test',
+        type: 'get',
+        cache: 'false',
+        data: {
+            pause_queue:'True'
+        },
+        datatype: 'json',
+        success: function (data) {
+            console.log(data);
+            $('#exampleModal').modal();
+            $('#input_local_file').val(data.path);
+            $('#host_name').val(data.host_name);
+            $('#local_ip').val(data.local_ip);
+            $('#cpu_left').val(data.cpu_left);
+            var main_app = $('#select_main_app').val();
+            $('#select_' + main_app).show();
+            $('#label_' + main_app).show();
+        },
+        error: function (e) {
+            alert('连接本地插件异常');
+        },
+    });
+};
+
 $('#btn_add_mission').on('click', function () {
     get_local_file()
 });
@@ -98,6 +125,19 @@ $('#btn_search').on('click', function () {
 
 $('#select_main_app').on('change', function () {
     change_app();
+});
+
+$('#btn_pause').on('click', function () {
+    var paused = $('#btn_pause').is('.active');
+    if (paused == false) {
+        $('#btn_pause').addClass('active');
+    } else {
+        $('#btn_pause').removeClass('active');
+    };
+});
+
+$('#btn_reorder').on('click', function () {
+    console.log('btn_reorder');
 });
 
 setInterval(function () {

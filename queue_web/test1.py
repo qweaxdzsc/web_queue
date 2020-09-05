@@ -19,7 +19,10 @@ task_dict1 = {
     "project_name": "Test_V1",
 }
 data_dict['0'] = task_dict0
+
+
 import os
+
 task_number = len(data_dict)
 app_dir = r'./app_local_server/local_app'
 app_list = os.listdir(app_dir)

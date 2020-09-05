@@ -1,9 +1,9 @@
 from app_queue import models
 from django.db.models import Min, Max
+from django.utils.timezone import utc
 import csv
 import threading
 import datetime
-from django.utils.timezone import utc
 
 import urllib.request
 import urllib.parse
