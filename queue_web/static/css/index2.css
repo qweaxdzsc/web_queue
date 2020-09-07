@@ -159,11 +159,13 @@
 
 .block_additional .fix_aside ul{
   list-style-type: none;
+
   padding-left: 0px;
 }
 
 .block_additional .fix_aside ul a{
   width: 100px;
+  color: #6c757d;
   padding: 0.75rem;
   border-radius: 0.25rem; 
 }

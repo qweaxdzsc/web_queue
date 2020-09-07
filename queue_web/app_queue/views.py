@@ -61,6 +61,7 @@ def index(request):
         'user_name': user_name,
         'user_auth': user_auth,
         'is_login': is_login,
+        'queue_pause': queue_pause[0],
         'main_apps': main_apps,
         'extend_apps_dict': extend_apps_dict,
     }

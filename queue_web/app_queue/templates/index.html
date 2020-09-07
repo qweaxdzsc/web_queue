@@ -183,10 +183,18 @@
 <div class="block_additional">
 
     <div class="fix_aside">
+
         <ul class="">
             <li><h3 class="mt-2 ">队列设置</h3></li>
-            <li class="mt-5"><a class="text-muted" href="javascript:void(0)" id="btn_pause">暂停队列</a></li>
-            <li class="mt-4"><a class="text-muted" href="javascript:void(0)" id="btn_reorder">调换任务</a></li>
+            {% if user_auth == 'manager' %}
+                <li class="mt-5">
+                    <a class="
+                    {% if queue_pause == True %}
+                       active
+                    {% endif %}" href="javascript:void(0)" id="btn_pause">暂停队列</a>
+                </li>
+                <li class="mt-4"><a class="text-muted" href="javascript:void(0)" id="btn_reorder">调换任务</a></li>
+            {% endif %}
         </ul>
     </div>
 
