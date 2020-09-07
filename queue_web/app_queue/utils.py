@@ -48,25 +48,28 @@ def db_to_running(obj):
     obj.delete()
 
 
-def next_mission(main_app, check_dict, pre_check=False):
+def next_mission(main_app, check_dict, queue_pause, pre_check=False):
     print('bring next mission')
     mission = get_first_mission(models.WaitList, main_app)
     if mission:
         data_dict = mission.get_data_dict()
         data_dict['mission_data'] = eval(data_dict['mission_data'])  # convert str from database to dict
-        if pre_check:
-            available = app_prerequisite(check_dict, main_app)
-            if available:
+        if not queue_pause[0]:
+            if pre_check:
+                available = app_prerequisite(check_dict, main_app)
+                if available:
+                    exec_mission(data_dict)
+                    print('perform delete')
+                    mission.delete()
+                    print('exec_mission')
+                else:
+                    virtual_mission(main_app, check_dict, queue_pause)
+            else:
                 exec_mission(data_dict)
-                print('perform delete')
                 mission.delete()
                 print('exec_mission')
-            else:
-                virtual_mission(main_app, check_dict)
         else:
-            exec_mission(data_dict)
-            mission.delete()
-            print('exec_mission')
+            virtual_mission(main_app, check_dict, queue_pause)
 
 
 def exec_mission(data_dict):
@@ -82,7 +85,7 @@ def exec_mission(data_dict):
     db_add_one(models.RunningList, data_dict)
 
 
-def virtual_mission(main_app, check_dict):
+def virtual_mission(main_app, check_dict, queue_pause):
     """
     This function is design to solve the problem when have empty running list,
     but without license. it need a trigger to check when have license available.
@@ -91,7 +94,7 @@ def virtual_mission(main_app, check_dict):
     :return:
     """
     print('create virtual mission')
-    timer = threading.Timer(10, next_mission, args=(main_app, check_dict, True, ))
+    timer = threading.Timer(10, next_mission, args=(main_app, check_dict, queue_pause, True,))
     timer.start()
 
 

@@ -31,7 +31,7 @@ list_obj = {
 }
 
 threads = 12
-queue_pause = False
+queue_pause = [False, ]  # make sure it is changeable
 
 
 # Create your views here.
@@ -173,8 +173,8 @@ class AddProject(View):
         # check if runnable, written in app, usually check license usage
         check = {'threads': threads}
         runnable = utils.app_prerequisite(check, self.main_app)
-        if not runnable:
-            utils.virtual_mission(self.main_app, check)
+        if (not runnable) or queue_pause[0]:
+            utils.virtual_mission(self.main_app, check, queue_pause)
             return False
         # should check cpu cores
         return True
@@ -223,9 +223,9 @@ def receive_result(request):
         check = {'threads': threads}
         available = utils.app_prerequisite(check, main_app)
         if available:
-            utils.next_mission(main_app, check)
+            utils.next_mission(main_app, check, queue_pause)
         else:
-            utils.virtual_mission(main_app, check)
+            utils.virtual_mission(main_app, check, queue_pause)
 
     return HttpResponse('django server received result')
 
@@ -288,7 +288,17 @@ def get_csrf(request):
     return HttpResponse(json.dumps(csrf_request_form))
 
 
+def pause_queue(request):
+    state = int(request.GET.get('pause'))
+    global queue_pause
+    queue_pause[0] = bool(1 - state)
+
+    return HttpResponse(state)
+
+
 def test(request):
-    queue_pause = request.GET.get('pause')
-    print(queue_pause)
-    return HttpResponse(queue_pause)
+    state = int(request.GET.get('pause'))
+    global queue_pause
+    queue_pause[0] = bool(1 - state)
+
+    return HttpResponse(state)

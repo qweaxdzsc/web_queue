@@ -152,8 +152,8 @@
   height: 550px;
   width: 195px;
   z-index: 99;
-    padding-left: 20px;
-    border-left:1px solid #dee2e6;
+  padding-left: 15px;
+  border-left:1px solid #dee2e6;
 
 }
 
@@ -166,6 +166,10 @@
   width: 100px;
   padding: 0.75rem;
   border-radius: 0.25rem; 
+}
+
+.block_additional .fix_aside ul h3{
+  padding: 0rem;
 }
 
 .block_additional .fix_aside .active{
