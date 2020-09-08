@@ -12,5 +12,6 @@ urlpatterns = [
     path(r'receive_result/', views.receive_result),
     path(r'get_csrf/', views.get_csrf),
     path(r'pause/', views.pause_queue),
+    path(r'reorder/', views.queue_reorder),
     path(r'test/', views.test),
 ]

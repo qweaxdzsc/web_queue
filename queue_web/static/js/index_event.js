@@ -76,7 +76,7 @@ $('#btn_pause').on('click', function () {
     var paused = $('#btn_pause').is('.active');
     console.log(Number(paused));
     $.ajax({
-        url: '/test',
+        url: '/pause',
         type: 'get',
         data: {pause: Number(paused)},
         success: function (data) {

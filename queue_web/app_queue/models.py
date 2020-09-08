@@ -7,7 +7,7 @@ class WaitList(models.Model):
     objects = models.Manager()                  # for reminder purpose
 
     id = models.AutoField('ID', primary_key=True)
-    order_id = models.IntegerField('队列ID')
+    order_id = models.IntegerField('队列ID', unique=False)
     account_email = models.EmailField('账户邮箱', )
     sender_address = models.CharField('请求者地址', max_length=64)
     exec_app = models.CharField('执行主流程', max_length=128)

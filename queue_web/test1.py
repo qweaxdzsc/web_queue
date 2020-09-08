@@ -1,7 +1,3 @@
-def test(var):
-    return 1/(var**0.5)
+a = [1, 2, 3, 4]
 
-
-a = test(63) + test(125) + test(160) + test(160) + test(500) + test(30)
-x = 1 / a**2
-print(x, a)
+print(a[1:2])

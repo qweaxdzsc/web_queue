@@ -297,9 +297,35 @@ def pause_queue(request):
     return HttpResponse(state)
 
 
-def test(request):
-    state = int(request.GET.get('pause'))
-    global queue_pause
-    queue_pause[0] = bool(1 - state)
+def queue_reorder(request):
+    parameters = {
+        'error_info': '',
+        'queue_pause': queue_pause[0],
 
-    return HttpResponse(state)
+    }
+    missions = models.WaitList.objects.all().order_by("order_id")
+    parameters['waiting_list'] = missions
+    return render(request, 'queue_reorder.html', parameters)
+
+
+def test(request):
+    drag_index = int(request.POST.get('drag_rowIndex'))
+    target_index = int(request.POST.get('target_rowIndex'))
+    print(drag_index, target_index)
+    if drag_index == target_index:
+        pass
+    else:
+        missions = models.WaitList.objects.all().order_by("order_id")
+        drag_mission = missions[drag_index - 1]
+        print(drag_mission)
+        if drag_index > target_index:
+            mission_range = missions[target_index - 1: drag_index]
+            print(mission_range)
+            filter_dict = {'exec_app': drag_mission.exec_app}
+            effect_mission = mission_range.filter(**filter_dict)
+            print(effect_mission)
+            if effect_mission.count() > 1:
+                target_order_id = missions[target_index - 1].order_id
+                print(target_order_id)
+
+    return HttpResponse('test')
