@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.views import View
 from django.template.context_processors import csrf
+from django.db.models import Count
 from app_queue import models
 from app_queue import utils
 import json
@@ -301,31 +302,54 @@ def queue_reorder(request):
     parameters = {
         'error_info': '',
         'queue_pause': queue_pause[0],
-
     }
+    app = {'exec_app': 'fluent191_solver'}
+    if request.method == "POST":
+        drag_index = int(request.POST.get('drag_rowIndex')) - 1
+        target_index = int(request.POST.get('target_rowIndex')) - 1
+        select_app = request.POST.get('select_app')
+        print(f'drag_index:{drag_index}, target_index:{target_index}, select_app:{select_app}')
+        if drag_index == target_index:
+            pass
+        else:
+            filter_dict = {'exec_app': select_app}
+            missions = models.WaitList.objects.all().filter(**filter_dict).order_by("order_id")
+            order_id_list = list(missions.values('order_id'))
+            drag_mission = missions[drag_index]
+            drag_mission.order_id = order_id_list[target_index]['order_id']
+
+            if drag_index > target_index:
+                mission_range = missions[target_index: drag_index]
+                order_id_range = order_id_list[target_index: drag_index]
+
+                for Index, mission in enumerate(mission_range):
+                    mission.order_id = order_id_range[Index]['order_id'] + 1
+                    mission.save()
+            else:
+                mission_range = missions[drag_index + 1: target_index + 1]
+                order_id_range = order_id_list[drag_index + 1: target_index + 1]
+
+                for Index, mission in enumerate(mission_range):
+                    mission.order_id = order_id_range[Index]['order_id'] - 1
+                    mission.save()
+            # save at last because it will not effect ORM get
+            drag_mission.save()
+    else:
+        user_auth = request.session.get('authorization')
+        if user_auth != 'manager':
+            return HttpResponse('no authorize')
+        search_app = request.GET.get('select_app')
+        if search_app:
+            app['exec_app'] = search_app
     missions = models.WaitList.objects.all().order_by("order_id")
-    parameters['waiting_list'] = missions
+    # add order_by() because modal have default order_by, sql require order by if use annotate method
+    app_query = models.WaitList.objects.values('exec_app').annotate(app_count=Count('exec_app')).order_by()
+    parameters['app_list'] = [i['exec_app'] for i in app_query]
+    parameters['waiting_list'] = missions.filter(**app)
+    parameters['choose_app'] = app['exec_app']
+
     return render(request, 'queue_reorder.html', parameters)
 
 
 def test(request):
-    drag_index = int(request.POST.get('drag_rowIndex'))
-    target_index = int(request.POST.get('target_rowIndex'))
-    print(drag_index, target_index)
-    if drag_index == target_index:
-        pass
-    else:
-        missions = models.WaitList.objects.all().order_by("order_id")
-        drag_mission = missions[drag_index - 1]
-        print(drag_mission)
-        if drag_index > target_index:
-            mission_range = missions[target_index - 1: drag_index]
-            print(mission_range)
-            filter_dict = {'exec_app': drag_mission.exec_app}
-            effect_mission = mission_range.filter(**filter_dict)
-            print(effect_mission)
-            if effect_mission.count() > 1:
-                target_order_id = missions[target_index - 1].order_id
-                print(target_order_id)
-
     return HttpResponse('test')

@@ -23,18 +23,6 @@ function inserElem(dragObj, position) {
     //         tbody.insertBefore(dragObj.target, position.nextObj);
     //     }
     // };
-    $.ajax({
-        url: '/test',
-        type: 'get',
-        data: {drag_rowIndex: dragObj.index, target_rowIndex: exchangeObj.index},
-        success: function (data) {
-            alert('更改成功');
-        },
-        error: function (e) {
-            alert('连接异常');
-        },
-    });
-
 };
 
 // 记录目前正在拖动的元素
@@ -70,15 +58,38 @@ table.ondrop = event => {
     // exchangeObj.target = event.target.parentElement;
     // exchangeObj.nextObj = event.target.parentElement.nextElementSibling;
     var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+    var app = $('#select_app').val();
     $.ajax({
-        url: '/test/',
+        url: '/reorder/',
         type: 'post',
-        data: {drag_rowIndex: dragObj.index, target_rowIndex: exchangeObj.index, csrfmiddlewaretoken:csrf},
+        data: {drag_rowIndex: dragObj.index, target_rowIndex: exchangeObj.index, 
+            csrfmiddlewaretoken:csrf, select_app: app},
+        dataType: 'html',
         success: function (data) {
-            alert('更改成功');
+            var table2 = $(data).find('#table_waiting').html();
+            $("#table_waiting").html(table2);
         },
         error: function (e) {
             alert('连接异常');
         },
     });
 };
+
+$('#select_app').on('change', function () {
+    var app = $('#select_app').val();
+    $.ajax({
+        url: '/reorder',
+        type: 'get',
+        data: {
+            select_app: app,
+        },
+        dataType: 'html',
+        success: function (data) {
+            var table2 = $(data).find('#table_waiting').html();
+            $("#table_waiting").html(table2);
+        },
+        error: function (e) {
+            alert('与服务器连接异常: ' + e.message);
+        },
+    });
+});
