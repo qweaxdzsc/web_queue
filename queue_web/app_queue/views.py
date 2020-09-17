@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.views import View
 from django.template.context_processors import csrf
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 from app_queue import models
 from app_queue import utils
@@ -352,4 +353,14 @@ def queue_reorder(request):
 
 
 def test(request):
-    return HttpResponse('test')
+    request.method = 'POST'
+    response = test_post(request)
+    return response
+
+
+@csrf_exempt
+def test_post(request):
+    print('request')
+    if request.method == 'POST':
+        print(request.POST)
+    return HttpResponse('test post')

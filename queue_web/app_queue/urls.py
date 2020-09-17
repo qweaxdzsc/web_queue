@@ -1,10 +1,11 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
-from . import thread_queue
+# from . import thread_queue
 
 app_name = 'app_queue'
 
 urlpatterns = [
+    path('api/', include('app_queue.api.api_urls', namespace='api_urls')),
     path(r'', views.index),
     path(r'add/', views.AddProject.as_view()),
     path(r'search_list/', views.fetch_tables),
@@ -14,4 +15,5 @@ urlpatterns = [
     path(r'pause/', views.pause_queue),
     path(r'reorder/', views.queue_reorder),
     path(r'test/', views.test),
+    path(r'test_post/', views.test_post),
 ]
