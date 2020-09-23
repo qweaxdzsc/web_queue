@@ -353,9 +353,9 @@ def queue_reorder(request):
 
 
 def test(request):
-    request.method = 'POST'
-    response = test_post(request)
-    return response
+    running_missions = models.WaitList.objects.all()
+
+    return HttpResponse('hello')
 
 
 @csrf_exempt

@@ -17,7 +17,7 @@ def api_add(request):
     # print('1')
     add_project = views.AddProject()
     add_project.post(request)
-    return HttpResponse('test api1')
+    return HttpResponse('post success')
 
 
 def api_history(request):
@@ -68,6 +68,7 @@ class HelpDoc(object):
             'user_name': '使用者用户名， 例如 "zonghui.jin"',
             'host_name': '本地计算机名， 例如 "DL5FWYWG2"',
             'local_ip': '本地计算机IP地址， 例如 "10.123.30.23"',
+            'cpu_left': '本地计算机剩余cpu数量， 例如"12.33"',
         }
         self.append(url, method, description)
         url = '/api/account_history'

@@ -12,6 +12,11 @@ from flask import Flask, make_response, request, send_from_directory
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
+# Global variable
+running_list = list()
+temporary_file = './temp.txt'  # in case the connection with server is down
+version = 1.1
+
 
 class DoTasks(threading.Thread):
     def __init__(self, tasks_dict):
@@ -39,13 +44,13 @@ class DoTasks(threading.Thread):
             self.return_data['%s_mission_status' % i] = task_dict['mission_status']
         self.return_data['order_id'] = task_dict['order_id']
         self.return_data['software'] = task_dict['software']
+        running_list.remove(self.tasks_dict)
         self.return_result()
 
     def return_result(self):
         url = "http://localhost/receive_result/"
         response = self.post_request(url, self.return_data)
-        response_content = response.read().decode()
-        print(response_content)
+        print(response)
 
     def post_request(self, url, new_dict):
         """
@@ -66,10 +71,16 @@ class DoTasks(threading.Thread):
         last_data = bytes(data_string, encoding='utf-8')
         header = csrf_dict['header']
         formed_request = urllib.request.Request(url=url, data=last_data, headers=header)
-        response = urllib.request.urlopen(formed_request)
-        response_body = response.read().decode('utf-8')
-        print(response_body)
-        return response
+        try:
+            response = urllib.request.urlopen(formed_request)
+        except Exception as e:
+            print(e)
+            with open(temporary_file, 'a') as f:
+                f.write(str(self.return_data))
+        else:
+            response_body = response.read().decode('utf-8')
+            print(response_body)
+            return response
 
 
 @app.route('/get_task', methods=['GET', 'POST'])
@@ -77,6 +88,7 @@ def get_task():
     if request.method == 'POST':
         do_task = DoTasks(request.form)
         do_task.start()
+        running_list.append(request.form)
 
     return 'flask server receive tasks'
 
@@ -112,6 +124,11 @@ def get_cores_left():
     cpu_left = str(cores_left())
 
     return cpu_left
+
+
+@app.route('/connection')
+def get_cores_left():
+    return version
 
 
 def cores_left():
