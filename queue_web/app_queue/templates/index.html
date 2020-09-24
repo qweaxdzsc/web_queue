@@ -124,19 +124,17 @@
                 </thead>
                 <tbody>
                 {% for mission in waiting_list %}
-                <tr>
-                    <td class="item1_td">{{mission.order_id}}</td>
-                    <td>{{mission.account_email}}</td>
-                    <td>{{mission.mission_name}}</td>
-                    <td>{{mission.exec_app}}</td>
-                    <td>{{mission.register_time}}</td>
-                    <td>{{mission.start_time}}</td>
-                    <td></td>
-                </tr>
+                    <tr>
+                        <td class="item1_td">{{mission.order_id}}</td>
+                        <td>{{mission.account_email}}</td>
+                        <td>{{mission.mission_name}}</td>
+                        <td>{{mission.exec_app}}</td>
+                        <td>{{mission.register_time}}</td>
+                        <td>{{mission.start_time}}</td>
+                        <td></td>
+                    </tr>
                 {% endfor %}
-
                 </tbody>
-
             </table>
         </div>
         </table>
@@ -162,7 +160,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for mission in history_list reversed%}
+                {% for mission in history_list %}
                 <tr>
                     <td></td>
                     <td>{{mission.account_email}}</td>

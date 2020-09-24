@@ -89,6 +89,7 @@ def get_task():
         do_task = DoTasks(request.form)
         do_task.start()
         running_list.append(request.form)
+        print('running_list:', request.form)
 
     return 'flask server receive tasks'
 
@@ -127,8 +128,18 @@ def get_cores_left():
 
 
 @app.route('/connection')
-def get_cores_left():
+def get_version():
     return version
+
+
+@app.route('/check_running', methods=['GET', 'POST'])
+def check_running():
+    check_data = request.form
+    print(request.form)
+    if check_data in running_list:
+        return 'running'
+    else:
+        return 'finished'
 
 
 def cores_left():
@@ -138,7 +149,8 @@ def cores_left():
 
     return cpu_left
 
-#
+
+
 # @app.route('/download')
 # def download():
 #     directory = r'C:\Users\zonghui\Desktop'

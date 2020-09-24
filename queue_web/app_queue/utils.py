@@ -78,8 +78,8 @@ def exec_mission(data_dict):
     data_string = urllib.parse.urlencode(data_dict['mission_data'])
     last_data = bytes(data_string, encoding='utf-8')
     response = urllib.request.urlopen("http://%s:37171/get_task" % data_dict['sender_address'], data=last_data)
-    dict = response.read().decode('utf-8')
-    print('response from local', dict)
+    content = response.read().decode('utf-8')
+    print('response from local', content)
     # add to running list
     data_dict['register_time'] = datetime.datetime.utcnow().replace(tzinfo=utc)
     db_add_one(models.RunningList, data_dict)

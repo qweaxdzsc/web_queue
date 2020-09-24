@@ -7,6 +7,8 @@ from app_queue import models
 from app_queue import utils
 import json
 import os
+import urllib.request
+import urllib.parse
 # import datetime
 # import urllib.request
 # import urllib.parse
@@ -32,7 +34,7 @@ list_obj = {
     'history_list': models.HistoryList.objects,
 }
 
-threads = 12
+threads = 4
 queue_pause = [False, ]  # make sure it is changeable
 
 
@@ -353,7 +355,16 @@ def queue_reorder(request):
 
 
 def test(request):
-    running_missions = models.WaitList.objects.all()
+    running_missions = models.RunningList.objects.all()
+    print(running_missions)
+    for mission in running_missions:
+        data_dict = mission.get_data_dict()
+        mission_data = eval(data_dict['mission_data'])
+        data_string = urllib.parse.urlencode(mission_data)
+        last_data = bytes(data_string, encoding='utf-8')
+        response = urllib.request.urlopen("http://%s:37171/check_running" % data_dict['sender_address'], data=last_data)
+        content = response.read().decode('utf-8')
+        print('response from local', content)
 
     return HttpResponse('hello')
 
