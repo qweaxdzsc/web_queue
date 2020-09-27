@@ -1,7 +1,10 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count
 from app_queue import models
-from .. import views
+from .. import views, utils
+import urllib.request
+import urllib.parse
 import json
 
 
@@ -45,6 +48,33 @@ def api_suspend(request):
     new_state = eval(request.GET.get('pause'))
     views.queue_pause[0] = new_state
     return HttpResponse(views.queue_pause[0])
+
+
+def api_relaunch(request):
+    running_missions = models.RunningList.objects.all()
+    processed_list = []
+    print('running missions:', running_missions)
+    for mission in running_missions:
+        data_dict = mission.get_data_dict()
+        mission_data = eval(data_dict['mission_data'])
+        data_string = urllib.parse.urlencode(mission_data)
+        last_data = bytes(data_string, encoding='utf-8')
+        response = urllib.request.urlopen("http://%s:37171/check_running" % data_dict['sender_address'], data=last_data)
+        content = response.read().decode('utf-8')
+        print('response from local', content)
+        processed_list.append(data_dict['exec_app'])
+
+    app_query = models.WaitList.objects.values('exec_app').annotate(app_count=Count('exec_app')).order_by()
+    for i in processed_list:
+        exclude_dict = {'exec_app': i}
+        app_query = app_query.exclude(**exclude_dict)
+    print('Those app queue prepare to launch', app_query)
+    check = {'threads': views.threads}
+    for i in app_query:
+        print('launch virtual mission for app: ', i['exec_app'])
+        utils.virtual_mission(i['exec_app'], check, views.queue_pause)
+
+    return HttpResponse('hello')
 
 
 class HelpDoc(object):

@@ -7,8 +7,7 @@ from app_queue import models
 from app_queue import utils
 import json
 import os
-import urllib.request
-import urllib.parse
+
 # import datetime
 # import urllib.request
 # import urllib.parse
@@ -34,7 +33,7 @@ list_obj = {
     'history_list': models.HistoryList.objects,
 }
 
-threads = 4
+threads = 12
 queue_pause = [False, ]  # make sure it is changeable
 
 
@@ -86,7 +85,7 @@ class AddProject(View):
     user_name = str()
     host_name = str()
     local_ip = str()
-    cpu_left = int()
+    total_cores = int()
     account_email = str()
     project_name = str()
     mission_data = dict()
@@ -104,7 +103,7 @@ class AddProject(View):
         self.user_name = request.POST.get('user_name')
         self.host_name = request.POST.get('host_name')
         self.local_ip = request.POST.get('local_ip')
-        self.cpu_left = request.POST.get('cpu_left')
+        self.total_cores = request.POST.get('total_cores')
         self.account_email = self.user_name + '@estra-automotive.com'
 
         self.order_id = utils.new_order_id(models.WaitList, self.main_app)
@@ -130,7 +129,7 @@ class AddProject(View):
         error = False
         project_address, file_name = os.path.split(self.file_path)
         self.project_name, extension = os.path.splitext(file_name)
-        use_mpi, mpi_host = utils.thread_strategy(threads, self.host_name, self.cpu_left)
+        use_mpi, mpi_host = utils.thread_strategy(threads, self.host_name, self.total_cores)
 
         main_task = {
             "software": self.main_app,
@@ -181,7 +180,7 @@ class AddProject(View):
         if (not runnable) or queue_pause[0]:
             utils.virtual_mission(self.main_app, check, queue_pause)
             return False
-        # should check cpu cores
+        # TODO should check cpu cores left
         return True
 
     def add_to_queue(self, data_dict):
@@ -355,17 +354,15 @@ def queue_reorder(request):
 
 
 def test(request):
-    running_missions = models.RunningList.objects.all()
-    print(running_missions)
-    for mission in running_missions:
-        data_dict = mission.get_data_dict()
-        mission_data = eval(data_dict['mission_data'])
-        data_string = urllib.parse.urlencode(mission_data)
-        last_data = bytes(data_string, encoding='utf-8')
-        response = urllib.request.urlopen("http://%s:37171/check_running" % data_dict['sender_address'], data=last_data)
-        content = response.read().decode('utf-8')
-        print('response from local', content)
-
+    app_query = models.WaitList.objects.values('exec_app').annotate(app_count=Count('exec_app')).order_by()
+    processed_list = ['fluent191_solver', 'fluent191_mesh']
+    for i in processed_list:
+        exclude_dict = {'exec_app': i}
+        app_query = app_query.exclude(**exclude_dict)
+    print(app_query)
+    check = {'threads': threads}
+    for i in app_query:
+        utils.virtual_mission(i['exec_app'], check, queue_pause)
     return HttpResponse('hello')
 
 

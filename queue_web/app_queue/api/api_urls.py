@@ -10,4 +10,5 @@ urlpatterns = [
     path(r'add/', api_views.api_add),
     path(r'account_history/', api_views.api_history),
     path(r'pause/', api_views.api_suspend),
+    path(r'relaunch/', api_views.api_relaunch)
 ]

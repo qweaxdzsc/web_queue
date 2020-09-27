@@ -99,6 +99,12 @@ def virtual_mission(main_app, check_dict, queue_pause):
 
 
 def app_prerequisite(check_dict, main_app):
+    """
+    usually check the license sufficiency
+    :param check_dict:
+    :param main_app:
+    :return:
+    """
     try:
         exec(open(r'./server_app/%s/prerequisite.py' % main_app, 'r').read(), check_dict)
         print('have license: ', check_dict['runnable'])
@@ -173,27 +179,27 @@ def check_keyword(keyword, condition_dict):
     return filter_dict, error_info
 
 
-def thread_strategy(threads, host_name, cpu_left):
+def thread_strategy(threads_request, host_name, local_threads):
     """
     This function is to determine how to dispatch cpu threads in the local cluster.
     Since the local cluster is not yet being constructed, the strategy mainly for problems under 36 threads.
     1. if sender itself have enough threads, use local instead of mpi(but it is not recommend, because the purpose
     of this system is to use license more efficiently. In short, use as much threads as you can)
     2. in most case, use 2 powerful CAE workstation first.
-    3. when use 3 hpc, or unlimited license. 2 CAE ws first, then the local, then use global
-    :param threads:
+    3. when use 3 hpc, or unlimited license. 2 CAE WS first, then the local, then use global
+    :param threads_request:
     :param host_name:
-    :param cpu_left:
+    :param local_threads:
     :return:
     """
     use_mpi = False
     mpi_host = []
-    cpu_left = float(cpu_left) - 4
+    local_threads = local_threads - 2
 
-    if cpu_left > threads and threads <= 12:
+    if local_threads >= threads_request and threads_request <= 12:
         use_mpi = False
         mpi_host = []
-    elif threads <= 36:
+    elif threads_request <= 36:
         with open('./other/cluster_info.csv', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
