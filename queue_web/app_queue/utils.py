@@ -1,9 +1,9 @@
 from app_queue import models
 from django.db.models import Min, Max, Count
-from django.utils.timezone import utc
+
 import csv
 import threading
-import datetime
+
 
 import urllib.request
 import urllib.parse
@@ -81,7 +81,6 @@ def exec_mission(data_dict):
     content = response.read().decode('utf-8')
     print('response from local', content)
     # add to running list
-    data_dict['register_time'] = datetime.datetime.utcnow().replace(tzinfo=utc)
     db_add_one(models.RunningList, data_dict)
 
 
@@ -194,7 +193,7 @@ def thread_strategy(threads_request, host_name, local_threads):
     """
     use_mpi = False
     mpi_host = []
-    local_threads = local_threads - 2
+    local_threads = int(local_threads) - 2
 
     if local_threads >= threads_request and threads_request <= 12:
         use_mpi = False

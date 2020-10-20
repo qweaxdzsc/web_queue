@@ -2,7 +2,16 @@ var csrf = $('input[name="csrfmiddlewaretoken"]').val();
 var rnd = Math.random();
 // var user_name = $('#input_name').val();
 
-var get_local_file = function () {
+
+var new_mission_dialog = function () {
+    $('#new_mission_model').modal();
+    var main_app = $('#select_main_app').val();
+    $('.select_extend').hide();
+    $('#select_' + main_app).show();
+    $('#label_' + main_app).show();
+};
+
+var get_local_file = function (success_doing) {
     $.ajax({
         url: 'http://localhost:37171/file',
         type: 'get',
@@ -13,14 +22,18 @@ var get_local_file = function () {
         datatype: 'json',
         success: function (data) {
             console.log(data);
-            $('#exampleModal').modal();
             $('#input_local_file').val(data.path);
             $('#host_name').val(data.host_name);
             $('#local_ip').val(data.local_ip);
             $('#total_cores').val(data.total_cores);
-            var main_app = $('#select_main_app').val();
-            $('#select_' + main_app).show();
-            $('#label_' + main_app).show();
+            var recommend_app = data.recommend_app
+            console.log(recommend_app);
+            if (recommend_app == 'none') {
+                alert('没有找到推荐的流程，请确认是否是正确的文件格式');
+            } else {
+                $('#select_main_app').val(recommend_app);
+            }
+            success_doing();
         },
         error: function (e) {
             alert('连接本地插件异常');
@@ -78,7 +91,7 @@ $('#btn_pause').on('click', function () {
     $.ajax({
         url: '/pause',
         type: 'get',
-        data: {pause: Number(paused)},
+        data: { pause: Number(paused) },
         success: function (data) {
             if (paused == false) {
                 $('#btn_pause').addClass('active');
@@ -96,7 +109,13 @@ $('#btn_pause').on('click', function () {
 
 
 $('#btn_add_mission').on('click', function () {
-    get_local_file()
+    get_local_file(new_mission_dialog);
+});
+
+$('#btn_local_file').on('click', function () {
+    function replace_new_address() {
+    };
+    get_local_file(replace_new_address);
 });
 
 $('#btn_add_mission_false').on('click', function () {

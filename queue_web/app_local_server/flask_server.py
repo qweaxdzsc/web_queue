@@ -105,12 +105,21 @@ def get_local_file():
     file_path = filedialog.askopenfilename()
 
     root.destroy()
+    # recommend app
+    recommend_app = 'none'
+    file_name = os.path.split(file_path)[1]
+    if 'solve' in file_name:
+        recommend_app = 'fluent191_solver'
+    elif 'mesh' in file_name:
+        recommend_app = 'fluent191_mesh'
 
+    # get local computer info
     host_name = socket.gethostname()
     local_ip = socket.gethostbyname(host_name)
     total_cores = cpu_count()
     data = {
         'path': file_path,
+        'recommend_app': recommend_app,
         'host_name': host_name,
         'local_ip': local_ip,
         'total_cores': total_cores,
@@ -176,7 +185,6 @@ def cores_left():
 #     file_name = 'freecad.7z'
 #     return send_from_directory(directory, filename=file_name, as_attachment=True)
 #
-
 
 if __name__ == '__main__':
     # print('test web:  http://localhost:37171/do_task')

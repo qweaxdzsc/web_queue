@@ -3,8 +3,11 @@ from django.views import View
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
+from django.utils.timezone import utc
+
 from app_queue import models
 from app_queue import utils
+import datetime
 import json
 import os
 
@@ -33,7 +36,7 @@ list_obj = {
     'history_list': models.HistoryList.objects,
 }
 
-threads = 12
+threads = 4
 queue_pause = [False, ]  # make sure it is changeable
 
 
@@ -119,6 +122,7 @@ class AddProject(View):
             'mission_data': self.mission_data,
         }
         if self.exec_available():
+            data_dict['register_time'] = datetime.datetime.utcnow().replace(tzinfo=utc)
             utils.exec_mission(data_dict)
         else:
             self.add_to_queue(data_dict)
@@ -218,6 +222,12 @@ def receive_result(request):
         finished_mission = models.RunningList.objects.filter(**filter_dict).first()
         print(finished_mission)
         data_dict = finished_mission.get_data_dict()
+        now_time = datetime.datetime.utcnow().replace(tzinfo=utc)
+        used_time_sec = (now_time - data_dict['start_time']).seconds
+        hours, minutes = divmod(used_time_sec / 60, 60)
+        used_time_str = f'{hours}小时{minutes}分钟'
+        data_dict['used_time'] = used_time_str
+        data_dict.pop('id')
         # add to history
         user_obj = models.HistoryList(**data_dict)
         user_obj.save()
