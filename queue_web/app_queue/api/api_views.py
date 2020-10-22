@@ -69,7 +69,7 @@ def api_relaunch(request):
         exclude_dict = {'exec_app': i}
         app_query = app_query.exclude(**exclude_dict)
     print('Those app queue prepare to launch', app_query)
-    check = {'threads': views.threads}
+    check = {'threads': views.threads[0]}
     for i in app_query:
         print('launch virtual mission for app: ', i['exec_app'])
         utils.virtual_mission(i['exec_app'], check, views.queue_pause)

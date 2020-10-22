@@ -3,6 +3,9 @@ from django.db import models
 
 
 class WaitList(models.Model):
+    """
+    storing the mission in the queue
+    """
 
     objects = models.Manager()                  # for reminder purpose
 
@@ -18,10 +21,12 @@ class WaitList(models.Model):
     used_time = models.CharField('用时', max_length=64, blank=True, default='')
 
     def __str__(self):
+        # for short showing
         tip = """[Order: %s, Mission: %s, Account: %s] """ % (str(self.order_id), self.mission_name, self.account_email)
         return tip
 
     def get_data_dict(self):
+        # get data by dict type
         data_dict = {
             'id': self.id,
             'order_id': self.order_id,
@@ -35,6 +40,10 @@ class WaitList(models.Model):
         return data_dict
 
     def short_mission_data(self):
+        """
+        if the mission data is too long, it will only show 30 bytes.
+        :return:
+        """
         if len(str(self.mission_data)) > 30:
             return '{}...'.format(str(self.mission_data)[0:29])
         else:
@@ -50,6 +59,11 @@ class WaitList(models.Model):
 
 
 class RunningList(models.Model):
+    """
+    Store the mission which is running currently
+    The structure is same as above
+
+    """
 
     objects = models.Manager()
 
@@ -98,7 +112,10 @@ class RunningList(models.Model):
 
 
 class HistoryList(models.Model):
-
+    """
+    store mission which is finished
+    structure is same as above
+    """
     objects = models.Manager()
 
     id = models.AutoField('ID', primary_key=True)
@@ -141,6 +158,6 @@ class HistoryList(models.Model):
         return data_dict
 
     class Meta:
-        ordering = ["id"]
+        ordering = ["-id"]
         verbose_name = "历史记录队列"
         verbose_name_plural = "历史记录队列"

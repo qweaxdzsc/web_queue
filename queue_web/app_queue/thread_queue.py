@@ -1,3 +1,8 @@
+
+"""
+backup plan for queue. Use While loop to constantly call mission.
+If all the conditions are satisfied, especially the license and queue, then do the mission
+"""
 from .utils import get_first_mission, db_to_running
 import time
 

@@ -20,8 +20,9 @@ def min_order_id(db_model):
 
 
 def new_order_id(db_model, main_app):
+    # based on exec app, determine the order id. Each app have their own queue.
     filter_dict = {'exec_app': main_app}
-    order_id_dict = db_model.objects.filter(**filter_dict).aggregate(Max('order_id'))
+    order_id_dict = db_model.objects.filter(**filter_dict).aggregate(Max('order_id'))  # find the max number
     order_id = order_id_dict['order_id__max']
     if order_id:
         order_id += 1
@@ -48,15 +49,25 @@ def db_to_running(obj):
     obj.delete()
 
 
-def next_mission(main_app, check_dict, queue_pause, pre_check=False):
+def next_mission(main_app, check_dict, queue_pause, need_check=False):
+    """
+    do next mission, but check if doable first
+    :param main_app:
+    :param check_dict:
+    :param queue_pause:
+    :param need_check:
+    :return:
+    """
     print('bring next mission')
     mission = get_first_mission(models.WaitList, main_app)
+    # if mission exist
     if mission:
-        data_dict = mission.get_data_dict()
+        data_dict = mission.get_data_dict()                          # get data dict from mission
         data_dict['mission_data'] = eval(data_dict['mission_data'])  # convert str from database to dict
         if not queue_pause[0]:
-            if pre_check:
+            if need_check:
                 available = app_prerequisite(check_dict, main_app)
+                # if pass check, do it. Otherwise, create another virtual mission
                 if available:
                     exec_mission(data_dict)
                     print('perform delete')
@@ -75,10 +86,10 @@ def next_mission(main_app, check_dict, queue_pause, pre_check=False):
 def exec_mission(data_dict):
     # send mission to local to run
     print('exec mission')
-    data_string = urllib.parse.urlencode(data_dict['mission_data'])
-    last_data = bytes(data_string, encoding='utf-8')
+    data_string = urllib.parse.urlencode(data_dict['mission_data'])  # stringify data dict
+    last_data = bytes(data_string, encoding='utf-8')                 # form bytes like
     response = urllib.request.urlopen("http://%s:37171/get_task" % data_dict['sender_address'], data=last_data)
-    content = response.read().decode('utf-8')
+    content = response.read().decode('utf-8')  # parse response
     print('response from local', content)
     # add to running list
     db_add_one(models.RunningList, data_dict)
@@ -86,10 +97,8 @@ def exec_mission(data_dict):
 
 def virtual_mission(main_app, check_dict, queue_pause):
     """
-    This function is design to solve the problem when have empty running list,
-    but without license. it need a trigger to check when have license available.
-    create virtual mission to occupy the running list, when it's done.
-    will call the next mission
+    When no mission in front, but without license, it need an auto check afterwards.
+    create virtual mission to call next after short certain time.
     :return:
     """
     print('create virtual mission')
@@ -148,27 +157,36 @@ def check_keyword(keyword, condition_dict):
     keyword_dict = {}
     filter_dict = {}
     if keyword:
+        # split keyword by ','
         keyword_list = keyword.split(',')
     else:
+        # keyword is empty, search empty
         return filter_dict, error_info
 
     for i in keyword_list:
+        # split it into field and search keyword
         split = i.split(':')
         if len(split) == 2:
-            keyword_dict[split[0]] = split[1]
+            keyword_dict[split[0]] = split[1]               # form keyword_dict, {"string_ley : value"}
             string_key = split[0]
             value = split[1]
+
             split_key = string_key.split('__')
+            # get real field name
             real_key = split_key[0]
             field = key_exist(real_key, condition_dict)
+
             if (len(split_key) == 2) and field:
+                # if it contains '__'
                 filter_method = split_key[1]
-                field = '%s__%s' % (condition_dict[int(real_key)], filter_method)
-                filter_dict[field] = value
+                field = '%s__%s' % (condition_dict[int(real_key)], filter_method)     # eg.'account_email__icontains'
+                filter_dict[field] = value                                            # form filter_dict for return
             elif len(split_key) == 1 and field:
-                field = '%s__icontains' % field
+                # if it not contains '__'
+                field = '%s__icontains' % field                                       # default output '__icontains'
                 filter_dict[field] = value
             else:
+                # error format
                 error_info = 'key error, has incorrect key'
                 break
         else:
@@ -193,7 +211,7 @@ def thread_strategy(threads_request, host_name, local_threads):
     """
     use_mpi = False
     mpi_host = []
-    local_threads = int(local_threads) - 2
+    local_threads = int(local_threads) - 2          # leave 2 threads to be cautious
 
     if local_threads >= threads_request and threads_request <= 12:
         use_mpi = False

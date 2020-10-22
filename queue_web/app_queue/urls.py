@@ -4,8 +4,9 @@ from . import views
 
 app_name = 'app_queue'
 
+# url route
 urlpatterns = [
-    path('api/', include('app_queue.api.api_urls', namespace='api_urls')),
+    path('api/', include('app_queue.api.api_urls', namespace='api_urls')),  # api branch connect
     path(r'', views.index),
     path(r'add/', views.AddProject.as_view()),
     path(r'search_list/', views.fetch_tables),

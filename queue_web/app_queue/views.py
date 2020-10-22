@@ -16,6 +16,7 @@ import os
 # import urllib.parse
 
 # --------global variable--------
+# connect fields in database with sequence numbers
 field_dict = {
     0: None,
     1: 'order_id',
@@ -30,18 +31,21 @@ field_dict = {
     10: 'sender_address',
 }
 
+# three model objects, in order to loop them
 list_obj = {
     'running_list': models.RunningList.objects,
     'waiting_list': models.WaitList.objects,
     'history_list': models.HistoryList.objects,
 }
 
-threads = 4
+threads = [12, ]
 queue_pause = [False, ]  # make sure it is changeable
 
 
 # Create your views here.
+# index page
 def index(request):
+    # get session to judge if logged in
     user_name = request.session.get('user_name')
     user_name_short = ''
     user_auth = request.session.get('authorization')
@@ -49,18 +53,19 @@ def index(request):
     if user_name:
         is_login = True
         user_name_short = user_name.split('.')[0]
-
+    # get every exec app and their own extend process
     main_apps = os.listdir('server_app')
     extend_apps_dict = {}
     for i, app in enumerate(main_apps):
         extend_apps_list = []
         file_list = os.listdir('server_app/%s' % app)
+        # get extend app
         for file in file_list:
             if file.startswith('extend_'):
                 app_name = file.replace('extend_', '')
                 extend_apps_list.append(app_name)
         extend_apps_dict[app] = extend_apps_list
-
+    # prepare parameters for index page
     parameters = {
         'error_info': '',
         'user_name_short': user_name_short,
@@ -71,6 +76,7 @@ def index(request):
         'main_apps': main_apps,
         'extend_apps_dict': extend_apps_dict,
     }
+    # get all 3 data sheets, but no more than 20 items each
     for list_name, obj in list_obj.items():
         missions = obj.all()
         mission_number = missions.count()
@@ -82,6 +88,13 @@ def index(request):
 
 
 class AddProject(View):
+    """
+    CBV, POST method, used to process request to add project to queue.
+    Precede as follow:
+    1. get all necessary parameters
+    2. based on given parameters, form mission data which used to do project
+    3. determine whether able to exec mission immediately, if not save to waiting queue
+    """
     main_app = str()
     extend_app = list()
     file_path = str()
@@ -108,11 +121,12 @@ class AddProject(View):
         self.local_ip = request.POST.get('local_ip')
         self.total_cores = request.POST.get('total_cores')
         self.account_email = self.user_name + '@estra-automotive.com'
-
+        # determine the order in queue
         self.order_id = utils.new_order_id(models.WaitList, self.main_app)
         self.mission_data, error = self.form_mission_data()
         if error:
             return HttpResponse('exec %s error, please check %s under server_app' % self.main_app)
+        # prepare data dict to register into database
         data_dict = {
             'order_id': self.order_id,
             'account_email': self.account_email,
@@ -122,19 +136,22 @@ class AddProject(View):
             'mission_data': self.mission_data,
         }
         if self.exec_available():
-            data_dict['register_time'] = datetime.datetime.utcnow().replace(tzinfo=utc)
+            # exec directly
+            data_dict['register_time'] = datetime.datetime.utcnow().replace(tzinfo=utc)  # record register time, UTC now
             utils.exec_mission(data_dict)
         else:
+            # add to waiting queue db
             self.add_to_queue(data_dict)
 
         return redirect('/')
 
     def form_mission_data(self):
-        error = False
-        project_address, file_name = os.path.split(self.file_path)
-        self.project_name, extension = os.path.splitext(file_name)
-        use_mpi, mpi_host = utils.thread_strategy(threads, self.host_name, self.total_cores)
-
+        # prepare parameters
+        error = False                                               # TODO ? maybe no need
+        project_address, file_name = os.path.split(self.file_path)          # split address and file
+        self.project_name, extension = os.path.splitext(file_name)          # split file name and extension name
+        use_mpi, mpi_host = utils.thread_strategy(threads[0], self.host_name, self.total_cores)
+        # form main data dict
         main_task = {
             "software": self.main_app,
             'project_name': self.project_name,
@@ -142,12 +159,14 @@ class AddProject(View):
             'extension': extension,
             'host_name': self.host_name,
             "order_id": self.order_id,
-            'threads': threads,
+            'threads': threads[0],
             "use_mpi": use_mpi,
             "mpi_host": mpi_host,
         }
-        self.mission_data[0] = main_task
+        self.mission_data[0] = main_task            # do main task first
+        # Then do extend task, also use dict format
         for i, app in enumerate(self.extend_app):
+            # maybe none
             if app:
                 extend_task = {
                     "software": app,
@@ -156,7 +175,7 @@ class AddProject(View):
                     'extension': extension,
                     'host_name': self.host_name,
                     "order_id": self.order_id,
-                    'threads': threads,
+                    'threads': threads[0],
                     "use_mpi": use_mpi,
                     "mpi_host": mpi_host,
                 }
@@ -174,13 +193,15 @@ class AddProject(View):
         # waiting list have none in front
         if self.order_id > 1:
             return False
+        # under same app queue, no mission in running
         filter_dict = {'exec_app': self.main_app}
         running_mission = models.RunningList.objects.filter(**filter_dict)
         if running_mission:
             return False
-        # check if runnable, written in app, usually check license usage
-        check = {'threads': threads}
+        # check if runnable, controlled by app, usually check license usage
+        check = {'threads': threads[0]}
         runnable = utils.app_prerequisite(check, self.main_app)
+        # if not runnable or being purposely paused
         if (not runnable) or queue_pause[0]:
             utils.virtual_mission(self.main_app, check, queue_pause)
             return False
@@ -188,10 +209,12 @@ class AddProject(View):
         return True
 
     def add_to_queue(self, data_dict):
+        # add mission to wait list database
         utils.db_add_one(models.WaitList, data_dict)
 
 
 def get_local_file(request):
+    # TODO ? what is this used for
     print(request.GET.get('request'))
     org_data = 'none'
     response = HttpResponse(org_data)
@@ -205,36 +228,39 @@ def get_local_file(request):
 
 def receive_result(request):
     """
-    listen to customer's local machine
+    listen to customer's local machine, POST method
     1. record the result
-    2. move running mission from RunningList to HistoryList
+    2. move mission from RunningList to HistoryList
     :param request:
     :return:
     """
     if request.method == 'POST':
         main_app = request.POST.get('software')
         order_id = request.POST.get('order_id')
-        mission_status = request.POST.get('0_mission_status')  # get all mission status, save to mission data
+        mission_status = request.POST.get('0_mission_status')   # get all mission status, save to mission data
+        # search for which mission is finished by order_id and exec_app
         filter_dict = {
             'exec_app': main_app,
             'order_id': order_id,
         }
         finished_mission = models.RunningList.objects.filter(**filter_dict).first()
         print(finished_mission)
+        # ----form data dict-----
         data_dict = finished_mission.get_data_dict()
+        # calculate used time
         now_time = datetime.datetime.utcnow().replace(tzinfo=utc)
         used_time_sec = (now_time - data_dict['start_time']).seconds
         hours, minutes = divmod(used_time_sec / 60, 60)
-        used_time_str = f'{hours}小时{minutes}分钟'
+        used_time_str = '%.0f小时%.0f分钟' % (hours, minutes)
         data_dict['used_time'] = used_time_str
         data_dict.pop('id')
         # add to history
         user_obj = models.HistoryList(**data_dict)
         user_obj.save()
-        # delete self
+        # delete item in running list
         finished_mission.delete()
-        # next mission
-        check = {'threads': threads}
+        # next mission, with pre check first
+        check = {'threads': threads[0]}
         available = utils.app_prerequisite(check, main_app)
         if available:
             utils.next_mission(main_app, check, queue_pause)
@@ -247,7 +273,7 @@ def receive_result(request):
 def fetch_tables(request):
     """
     used for ajax to request 3 tables data.
-    1. get search condition, keyword, filter_current_user, user_name;
+    1. get search condition, keyword, if_current_user, user_name;
     2. check the keyword format;
     3. if correct, form filter dict, if not, return render with error_info
     4. if correct, use filter dict to filter data from database, return render
@@ -260,28 +286,32 @@ def fetch_tables(request):
         'error_info': ''
     }
     list_fetched = []
-
+    # get parameters
     condition = int(request.GET.get('condition'))
     keyword = request.GET.get('keyword')
     filter_current_user = request.GET.get('current_user')
     user_name = request.session.get('user_name')
-
+    # form filter dict
     if field_dict[condition]:
         filter_dict = {
             '%s__icontains' % field_dict[condition]: keyword
         }
     else:
         filter_dict, parameters['error_info'] = utils.check_keyword(keyword, field_dict)
+
     if parameters['error_info']:
+        # if have error
         return render(request, 'index.html', parameters)
+    # add another condition, filter by current user
     if filter_current_user == 'true':
         account_email = user_name + '@estra-automotive.com'
         filter_dict['account_email'] = account_email
     print('filter_dict: ', filter_dict)
+    # try to filter the result, and return it in list_fetched
     for list_name, obj in list_obj.items():
         try:
             list_fetched = obj.filter(**filter_dict)
-            mission_number = list_fetched.count()
+            mission_number = list_fetched.count()             # no more than 20 items each table
             if mission_number > 20:
                 list_fetched = list_fetched[:21]
         except Exception as e:
@@ -294,6 +324,11 @@ def fetch_tables(request):
 
 
 def get_csrf(request):
+    """
+    used for bypass the csrf verification
+    :param request:
+    :return:
+    """
     csrf_token = str(csrf(request)['csrf_token'])
     csrf_request_form = {
         'header': {'Cookie': 'csrftoken=%s' % csrf_token},
@@ -303,6 +338,11 @@ def get_csrf(request):
 
 
 def pause_queue(request):
+    """
+    determine if suspend queue, connected with button in website
+    :param request:
+    :return:
+    """
     state = int(request.GET.get('pause'))
     global queue_pause
     queue_pause[0] = bool(1 - state)
@@ -311,42 +351,55 @@ def pause_queue(request):
 
 
 def queue_reorder(request):
+    """
+    used to reorder the queue, in case some mission has to jump the queue.
+    paired with /reorder/ site
+    :param request:
+    :return:
+    """
     parameters = {
         'error_info': '',
         'queue_pause': queue_pause[0],
     }
-    app = {'exec_app': 'fluent191_solver'}
+    app = {'exec_app': 'fluent191_solver'}                              # default app
     if request.method == "POST":
-        drag_index = int(request.POST.get('drag_rowIndex')) - 1
-        target_index = int(request.POST.get('target_rowIndex')) - 1
-        select_app = request.POST.get('select_app')
+        drag_index = int(request.POST.get('drag_rowIndex')) - 1         # the index of item being dragged
+        target_index = int(request.POST.get('target_rowIndex')) - 1     # the index of place being dropped
+        select_app = request.POST.get('select_app')                     # selected item's app
         print(f'drag_index:{drag_index}, target_index:{target_index}, select_app:{select_app}')
         if drag_index == target_index:
+            # if drag to same place
             pass
         else:
+            # order the list of missions by select app
             filter_dict = {'exec_app': select_app}
             missions = models.WaitList.objects.all().filter(**filter_dict).order_by("order_id")
             order_id_list = list(missions.values('order_id'))
             drag_mission = missions[drag_index]
-            drag_mission.order_id = order_id_list[target_index]['order_id']
-
+            drag_mission.order_id = order_id_list[target_index]['order_id']     # change drag mission's order id
+            # change effected missions id, 2 situations
             if drag_index > target_index:
+                # define effected range
                 mission_range = missions[target_index: drag_index]
                 order_id_range = order_id_list[target_index: drag_index]
 
                 for Index, mission in enumerate(mission_range):
+                    # all affected mission order id + 1
                     mission.order_id = order_id_range[Index]['order_id'] + 1
                     mission.save()
             else:
+                # define effected range
                 mission_range = missions[drag_index + 1: target_index + 1]
                 order_id_range = order_id_list[drag_index + 1: target_index + 1]
 
                 for Index, mission in enumerate(mission_range):
+                    # all affected mission order id - 1
                     mission.order_id = order_id_range[Index]['order_id'] - 1
                     mission.save()
-            # save at last because it will not effect ORM get
+            # save at last because it will not effect ORM fetch at first
             drag_mission.save()
     else:
+        # only the manager have the authorization to change order
         user_auth = request.session.get('authorization')
         if user_auth != 'manager':
             return HttpResponse('no authorize')
@@ -355,6 +408,7 @@ def queue_reorder(request):
             app['exec_app'] = search_app
     missions = models.WaitList.objects.all().order_by("order_id")
     # add order_by() because modal have default order_by, sql require order by if use annotate method
+    # show list
     app_query = models.WaitList.objects.values('exec_app').annotate(app_count=Count('exec_app')).order_by()
     parameters['app_list'] = [i['exec_app'] for i in app_query]
     parameters['waiting_list'] = missions.filter(**app)
@@ -370,7 +424,7 @@ def test(request):
         exclude_dict = {'exec_app': i}
         app_query = app_query.exclude(**exclude_dict)
     print(app_query)
-    check = {'threads': threads}
+    check = {'threads': threads[0]}
     for i in app_query:
         utils.virtual_mission(i['exec_app'], check, queue_pause)
     return HttpResponse('hello')
