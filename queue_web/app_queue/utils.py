@@ -86,8 +86,9 @@ def next_mission(main_app, check_dict, queue_pause, need_check=False):
 def exec_mission(data_dict):
     # send mission to local to run
     print('exec mission')
-    data_string = urllib.parse.urlencode(data_dict['mission_data'])  # stringify data dict
-    last_data = bytes(data_string, encoding='utf-8')                 # form bytes like
+    data_dict['mission_data'][0]['order_id'] = data_dict['order_id']       # use current order_id
+    data_string = urllib.parse.urlencode(data_dict['mission_data'])        # stringify data dict
+    last_data = bytes(data_string, encoding='utf-8')                       # form bytes like
     response = urllib.request.urlopen("http://%s:37171/get_task" % data_dict['sender_address'], data=last_data)
     content = response.read().decode('utf-8')  # parse response
     print('response from local', content)

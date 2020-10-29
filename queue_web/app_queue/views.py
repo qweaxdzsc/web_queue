@@ -417,16 +417,36 @@ def queue_reorder(request):
     return render(request, 'queue_reorder.html', parameters)
 
 
+def delete_mission(request):
+    if request.method == 'POST':
+        app = request.POST.get('exec_app')
+        print(app)
+        order_id = request.POST.get('order_id')
+        print(order_id)
+        filter_dict = {
+            'exec_app': app,
+            'order_id': order_id,
+        }
+        obj = models.WaitList.objects.filter(**filter_dict).first()
+        print(obj)
+        obj.delete()
+    return HttpResponse('hello')
+
+
 def test(request):
-    app_query = models.WaitList.objects.values('exec_app').annotate(app_count=Count('exec_app')).order_by()
-    processed_list = ['fluent191_solver', 'fluent191_mesh']
-    for i in processed_list:
-        exclude_dict = {'exec_app': i}
-        app_query = app_query.exclude(**exclude_dict)
-    print(app_query)
-    check = {'threads': threads[0]}
-    for i in app_query:
-        utils.virtual_mission(i['exec_app'], check, queue_pause)
+    pass
+    # if request.method == 'POST':
+    #     app = request.POST.get('exec_app')
+    #     print(app)
+    #     order_id = request.POST.get('order_id')
+    #     print(order_id)
+    #     filter_dict = {
+    #         'exec_app': app,
+    #         'order_id': order_id,
+    #     }
+    #     obj = models.WaitList.objects.filter(**filter_dict).first()
+    #     print(obj)
+    #     obj.delete()
     return HttpResponse('hello')
 
 

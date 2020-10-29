@@ -131,7 +131,10 @@
                         <td>{{mission.exec_app}}</td>
                         <td>{{mission.register_time}}</td>
                         <td>{{mission.start_time}}</td>
-                        <td></td>
+                        <td class="{{mission.account_email}}">
+                            <a href="javascript:;" class="delete_mission" id="{{mission.exec_app}}-{{mission.order_id}}"
+                            ></a>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -197,7 +200,7 @@
     </div>
 
 </div>
-<!-- Modal -->
+<!-- New mission Modal -->
 <div class="modal fade" id="new_mission_model" data-backdrop="static" tabindex="-1"
      role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -259,6 +262,28 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="delete_confirm_modal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="">删除警告</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        请确认是否删除选中项目
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" id="delete_confirm">确定删除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="search_error" style="display:none">{{error_info}}</div>
 {% endblock content %}
 {% block script %}

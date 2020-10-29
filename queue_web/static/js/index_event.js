@@ -1,5 +1,6 @@
 var csrf = $('input[name="csrfmiddlewaretoken"]').val();
 var rnd = Math.random();
+var delete_id = '';
 // var user_name = $('#input_name').val();
 
 
@@ -9,6 +10,23 @@ var new_mission_dialog = function () {
     $('.select_extend').hide();
     $('#select_' + main_app).show();
     $('#label_' + main_app).show();
+};
+
+var show_delete_icon = function () {
+    var dm = $('.delete_mission');
+    $.each(dm, function (index, domEle){
+        email = domEle.parentElement.className;
+        name = email.split('.')[0];
+        user_name = $('.user_info').text();
+
+        if (user_name.indexOf(name) != -1 ) {
+            $(this).show();
+        } else {
+            $(this).hide();
+
+        };
+
+    });
 };
 
 var get_local_file = function (success_doing) {
@@ -66,7 +84,8 @@ var update_tables = function () {
                 $("#table_waiting").html(table2);
                 var table3 = $(data).find('#table_history').html();
                 $("#table_history").html(table3);
-            }
+                show_delete_icon();
+            };
 
         },
         error: function (e) {
@@ -83,6 +102,35 @@ var change_app = function () {
     $('#label_' + main_app).show();
 };
 
+
+$('.delete_mission').on('click', function () {
+    delete_id = $(this)[0].id;
+    console.log(delete_id);
+    $('#delete_confirm_modal').modal();
+    $
+});
+
+
+$('#delete_confirm').on('click', function () {
+    var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+    split_list = delete_id.split('-');
+    var exec_app = split_list[0];
+    var order_id = split_list[1];
+    console.log(exec_app, order_id);
+    $.ajax({
+        url:'/test/',
+        type:'post',
+        cache: 'false',
+        data: {exec_app: exec_app, order_id: order_id, csrfmiddlewaretoken:csrf},
+        datatype: 'json',
+        success: function (data) {
+            location.reload();
+        },
+        error: function (e) {
+            alert('异常，删除失败');
+        },
+    });
+});
 
 
 $('#btn_pause').on('click', function () {
@@ -147,6 +195,14 @@ $('#select_main_app').on('change', function () {
 setInterval(function () {
     update_tables();
 }, 20000);
+
+
+show_delete_icon();
+
+// setInterval(function () {
+//     show_delete_icon();
+
+// }, 10000);
 
 
 // $(window).scroll(function() {

@@ -93,6 +93,17 @@
 }
 
 
+.block_table .delete_mission{
+  width: 1rem;
+  height: 1rem;
+  border: 0px;
+  display: block;
+  background-image: url('../icon/delete.svg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+
 .block_table .margin_bottom{
     border-bottom:2px solid #dee2e6;
 }
