@@ -1,11 +1,15 @@
 from django.shortcuts import render, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
+from django.http import QueryDict
 from app_queue import models
 from .. import views, utils
 import urllib.request
 import urllib.parse
 import json
+import os
+import time
+import hashlib
 
 
 def help(request):
@@ -75,6 +79,62 @@ def api_relaunch(request):
         utils.virtual_mission(i['exec_app'], check, views.queue_pause)
 
     return HttpResponse('hello')
+
+
+@csrf_exempt
+def api_upload(request):
+    if request.method == "POST":    # 请求方法为POST时，进行处理
+        print(request.POST)
+        print(type(request.POST))
+        file_list = request.FILES.getlist("file_list", None)    # 获取上传的文件，如果没有文件，则默认为None
+        exec_file_name = request.POST.get('exec_file_name')
+        user_name = request.POST.get('user_name')
+        file_md5 = request.POST.getlist('file_md5')
+        print('file list:', file_list)
+        print('exec file name: ', exec_file_name)
+        print('user_name : ', user_name)
+        print('file_md5 : ', file_md5)
+        if not file_list:
+            return HttpResponse("no files for upload!")
+        time_mark = time.strftime("%m%d%H%M%S")
+        folder_name = os.path.splitext(file_list[0].name)[0]
+        folder = "G:\CFD_share\queue_calculation\%s_%s" % (folder_name, time_mark)  # make folder special
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        for file in file_list:
+            file_path = os.path.join(folder, file.name)
+            destination = open(file_path, 'wb+')  # 打开特定的文件进行二进制的写操作
+            for chunk in file.chunks():      # 分块写入文件
+                destination.write(chunk)
+            destination.close()
+            if not os.path.exists(file_path):
+                return HttpResponse("file (%s) upload failed!" % file.name)
+        # md5 verify file
+        # form data dict to submit mission to queue
+        data_dict = {
+            "select_main_app": 'fluent191_solver',
+            "select_fluent191_solve": [],
+            "input_local_file": folder + '\\' + exec_file_name,
+            "user_name": user_name,
+            "host_name": 'DL5FWYWG2',
+            "local_ip": 'localhost',
+            "total_cores": 28,
+        }
+        request_dict = QueryDict('', mutable=True)              # update request data
+        request_dict.update(data_dict)
+        request.POST = request_dict
+        api_add(request)
+        return HttpResponse("upload over, submit mission")
+    # else:
+    #     return HttpResponse('''
+    #         <!doctype html>
+    #         <title>Upload new File</title>
+    #         <h1>Upload new File</h1>
+    #         <form method=post enctype=multipart/form-data>
+    #           <input type=file name=file_list multiple="">
+    #           <input type=submit value=Upload>
+    #         </form>
+    #         ''')
 
 
 class HelpDoc(object):

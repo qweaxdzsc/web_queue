@@ -121,6 +121,14 @@ class AddProject(View):
         self.local_ip = request.POST.get('local_ip')
         self.total_cores = request.POST.get('total_cores')
         self.account_email = self.user_name + '@estra-automotive.com'
+        print('main_app', self.main_app)
+        print('extend_app', self.extend_app)
+        print('file_path', self.file_path)
+        print('user_name', self.user_name)
+        print('host_name', self.host_name)
+        print('local_ip', self.local_ip)
+        print('total_cores', self.total_cores)
+        print('account_email', self.account_email)
         # determine the order in queue
         self.order_id = utils.new_order_id(models.WaitList, self.main_app)
         self.mission_data, error = self.form_mission_data()

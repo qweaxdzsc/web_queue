@@ -118,7 +118,7 @@ $('#delete_confirm').on('click', function () {
     var order_id = split_list[1];
     console.log(exec_app, order_id);
     $.ajax({
-        url:'/test/',
+        url:'/delete_mission/',
         type:'post',
         cache: 'false',
         data: {exec_app: exec_app, order_id: order_id, csrfmiddlewaretoken:csrf},
