@@ -1,13 +1,15 @@
-from app.report_standard import txt_to_python
-from app.report_standard import python_to_html
-# from . import data_to_excel
+from app_local_server.local_app.fluent191_solver.extend_report_standard import txt_to_python, python_to_html, data_to_excel
 import cgitb
 
 global project_address
 global project_name
+global mission_status
 # designate path
-project_address = r"G:/test/queue_test2"
-project_name = "Test_V1"
+
+project_name = project_name.replace("_solve", "")
+project_name = project_name.replace("_SOLVE", "")
+# project_address = "G:\_HAVC_Project\MRH_REAR\MRH_REAR_02_foot\MRH_REAR_TEST"
+# project_name = "MRH_V19.6_FOOT"
 path = project_address + '\\result_%s\\' % project_name
 
 # Txt input path
@@ -31,3 +33,5 @@ python_to_html.get_html(data_matrix, title, html_output_path)
 
 # get fan efficiency
 cgitb.enable(format='text')
+
+mission_status = "finished"

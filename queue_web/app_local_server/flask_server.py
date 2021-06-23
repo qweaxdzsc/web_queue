@@ -19,42 +19,48 @@ version = 1.1
 
 
 class DoTasks(threading.Thread):
-    def __init__(self, tasks_dict):
+    def __init__(self, tasks_dict, remote_addr):
         super().__init__()
         self.tasks_dict = tasks_dict
+        self.remote_addr = remote_addr
         self.app_dir = r'local_app'
         self.return_data = dict()
 
     def run(self):
         task_number = len(self.tasks_dict)
         app_list = os.listdir(self.app_dir)
+        script_path = ""
+        main_task_folder = ""
+        print("task_number", task_number)
         for i in range(task_number):
             task_dict = eval(self.tasks_dict[str(i)])
             print('Task%s: ' % i, task_dict)
             task_dict['mission_status'] = 'not start'
-            if task_dict['software'] in app_list:
-                script_path = '%s/%s/main.py' % (self.app_dir, task_dict['software'])
-                try:
-                    # print('pass')
-                    exec(open(script_path, 'r').read(), task_dict)
-                except Exception as e:
-                    print(e)
-                else:
-                    print(task_dict['mission_status'])
+            if i == 0:
+                main_task_folder = f"{self.app_dir}/{task_dict['software']}"
+                script_path = f"{main_task_folder}/main.py"
+                self.return_data['order_id'] = task_dict['order_id']
+                self.return_data['project_name'] = task_dict['project_name']
+                self.return_data['software'] = task_dict['software']
+            else:
+                script_path = f"{main_task_folder}/extend_{task_dict['software']}/main.py"
+            try:
+                print('start exec')
+                exec(open(script_path, 'r').read(), task_dict)
+            except Exception as e:
+                print(e)
+            else:
+                print(task_dict['mission_status'])
             self.return_data['%s_mission_status' % i] = task_dict['mission_status']
-        self.return_data['order_id'] = task_dict['order_id']
-        self.return_data['project_name'] = task_dict['project_name']
-        self.return_data['software'] = task_dict['software']
         running_list.remove(self.tasks_dict)
         self.return_result()
 
     def return_result(self):
-        url = "http://localhost/receive_result/"
-        response = post_request(url, self.return_data)
+        response = post_request(self.remote_addr, self.return_data)
         print(response)
 
 
-def post_request(url, new_dict):
+def post_request(remote_addr, new_dict):
     """
     1. get csrf token dict include data and header
     2. add new data dict
@@ -63,7 +69,7 @@ def post_request(url, new_dict):
     :param new_dict: new data dict
     :return: urllib request response object
     """
-    response = urllib.request.urlopen("http://localhost/get_csrf")
+    response = urllib.request.urlopen("http://%s/get_csrf" % remote_addr)
     csrf_dict = eval(response.read().decode())
     # stringify data dict to string
     data_dict = csrf_dict['data']
@@ -72,6 +78,7 @@ def post_request(url, new_dict):
     # # convert to bytes
     last_data = bytes(data_string, encoding='utf-8')
     header = csrf_dict['header']
+    url = "http://%s/receive_result/" % remote_addr
     formed_request = urllib.request.Request(url=url, data=last_data, headers=header)
     try:
         response = urllib.request.urlopen(formed_request)
@@ -89,9 +96,10 @@ def post_request(url, new_dict):
 @app.route('/get_task', methods=['GET', 'POST'])
 def get_task():
     if request.method == 'POST':
-        do_task = DoTasks(request.form)
+        do_task = DoTasks(request.form, request.remote_addr)
         do_task.start()
         running_list.append(request.form)
+        print('task from: ', request.remote_addr)
         print('running_list:', request.form)
 
     return 'flask server receive tasks'
@@ -102,6 +110,7 @@ def get_local_file():
     root = tk.Tk()
     root.withdraw()
     root.attributes('-topmost', True)
+
     file_path = filedialog.askopenfilename()
 
     root.destroy()
@@ -111,7 +120,7 @@ def get_local_file():
     if 'solve' in file_name:
         recommend_app = 'fluent191_solver'
     elif 'mesh' in file_name:
-        recommend_app = 'fluent191_mesh'
+        recommend_app = 'fluent201_mesh'
 
     # get local computer info
     host_name = socket.gethostname()
@@ -151,21 +160,30 @@ def check_running():
     if check_data in running_list:
         return 'running'
     else:
-        temporary_file = f'{temporary_folder}/{request.form["project_name"]}_{request.form["order_id"]}.txt'
+        print('request form first dict', request.form["0"])
+        task_dict = eval(request.form["0"])
         return_data = dict()
-        if os.path.exists(temporary_file):
-            # if record temporary file
-            with open(temporary_file, 'r') as f:
-                return_data = eval(f.read())
-        else:
-            # if no temporary file, consider it abolished
+        try:
+            temporary_file = f'{temporary_folder}/{task_dict["project_name"]}_{task_dict["order_id"]}.txt'
+        except Exception as e:
             return_data['%s_mission_status' % 0] = 'abnormal'
             return_data['order_id'] = request.form['order_id']
             return_data['project_name'] = request.form['project_name']
             return_data['software'] = request.form['software']
+        else:
+            if os.path.exists(temporary_file):
+                # if record temporary file
+                with open(temporary_file, 'r') as f:
+                    return_data = eval(f.read())
+            else:
+                # if no temporary file, consider it abolished
+                return_data['%s_mission_status' % 0] = 'abnormal'
+                return_data['order_id'] = request.form['order_id']
+                return_data['project_name'] = request.form['project_name']
+                return_data['software'] = request.form['software']
 
         # return info anyway to finish this mission
-        url = "http://localhost/receive_result/"
+        url = "http://%s/receive_result/" % request.remote_addr
         response = post_request(url, return_data)
         print(response)
 
@@ -176,7 +194,6 @@ def cores_left():
     cpu_left = total_cores * (1 - cpu_usage/100)
 
     return cpu_left
-
 
 
 # @app.route('/download')

@@ -38,7 +38,7 @@ list_obj = {
     'history_list': models.HistoryList.objects,
 }
 
-threads = [12, ]
+threads = [24, ]
 queue_pause = [False, ]  # make sure it is changeable
 
 
@@ -51,6 +51,7 @@ def index(request):
     user_auth = request.session.get('authorization')
     is_login = False
     if user_name:
+        print('user %s already logged in' % user_name)
         is_login = True
         user_name_short = user_name.split('.')[0]
     # get every exec app and their own extend process
@@ -245,16 +246,22 @@ def receive_result(request):
     if request.method == 'POST':
         main_app = request.POST.get('software')
         order_id = request.POST.get('order_id')
-        mission_status = request.POST.get('0_mission_status')   # get all mission status, save to mission data
+
         # search for which mission is finished by order_id and exec_app
         filter_dict = {
             'exec_app': main_app,
             'order_id': order_id,
         }
         finished_mission = models.RunningList.objects.filter(**filter_dict).first()
-        print(finished_mission)
+        print('The finished mission is: ', finished_mission)
         # ----form data dict-----
         data_dict = finished_mission.get_data_dict()
+        # record mission status
+        mission_data_dict = eval(data_dict["mission_data"])
+        for key in request.POST:
+            if "mission_status" in key:
+                mission_data_dict[key] = request.POST.get(key)
+        data_dict["mission_data"] = str(mission_data_dict)
         # calculate used time
         now_time = datetime.datetime.utcnow().replace(tzinfo=utc)
         used_time_sec = (now_time - data_dict['start_time']).seconds

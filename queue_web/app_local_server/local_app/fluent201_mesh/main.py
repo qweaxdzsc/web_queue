@@ -59,13 +59,15 @@ class CalGuard(threading.Thread):
         self.transcript = '%s\\%s' % (directory, transcript_name)
         print('transcript path:', self.transcript)
         self.wait_time = 50
-        self.check_interval = 150
+        self.check_interval = 240
+        self.bat_file_name = ''
 
     def run(self):
         print('start Guard')
         time.sleep(self.wait_time)
         if os.path.exists(self.transcript):
             print('have transcript')
+            self.parse_bat_name()
             self.check_transcript(self.check_interval)
             self.ensure_finish(self.dir)
         else:
@@ -79,6 +81,19 @@ class CalGuard(threading.Thread):
             time.sleep(check_interval)
             line_count = line_count_new
             line_count_new = self.get_line_count()
+            if line_count_new > 500000:
+                break
+
+    def parse_bat_name(self):
+        with open(self.transcript, 'r') as f:
+            content = f.readlines()
+            for line in content:
+                if 'host' in line:
+                    line = line.split()
+                    host_name = line[1]
+                    pid = line[3]
+                    self.bat_file_name = 'cleanup-fluent-%s-%s.bat' % (host_name, pid)
+                    break
 
     def get_line_count(self):
         with open(self.transcript, 'r') as f:
@@ -90,28 +105,19 @@ class CalGuard(threading.Thread):
 
     def ensure_finish(self, dir):
         file_list = os.listdir(dir)
-        bat_file_name = ''
-        with open(self.transcript, 'r') as f:
-            content = f.readlines()
-            for line in content:
-                if 'host' in line:
-                    line = line.split()
-                    host_name = line[1]
-                    pid = line[3]
-                    bat_file_name = 'cleanup-fluent-%s-%s.bat' % (host_name, pid)
         for i in file_list:
-            if i == bat_file_name:
+            if i == self.bat_file_name:
                 print('.bat address', os.path.join(dir, i))
                 subprocess.call(os.path.join(dir, i), shell=True)
                 mission_status = 'abnormal'
         print('\nall finished')
         # self.quit()
 
-
 # -----------------section 4-----------------------
 # process on getting other parameter
 # -------------------------------------------------
 # get mpi_setting
+
 if use_mpi:
     mpi_setting = '-mpi=ibmmpi -cnf=mpi_host.txt'
     mpi_file = '%s/mpi_host.txt' % project_address

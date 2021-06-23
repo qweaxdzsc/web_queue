@@ -40,8 +40,8 @@ def get_html(matrix, title, html_output_path):
             if file.endswith('jpg') or file.endswith('png'):
                 pic_name_list.append(file.split('.')[0])
                 picture_list.append(file)
-        print(pic_name_list)
-        print(picture_list)
+        # print(pic_name_list)
+        # print(picture_list)
         for index, pic in enumerate(picture_list):
             total_picture_div += """
             <div class="lineblock"></div>

@@ -141,7 +141,7 @@ def process_data(txt_name):
                 uni_data_de,
                 fan_moment
              )
-    print(matrix)
+    # print(matrix)
     return matrix
 
 

@@ -12,8 +12,9 @@ class LicenseUsage(object):
         self.license_command = r'lmstat -a -c 1055@'
         self.module_dict = {'spaceclaim': ["Users of a_spaceclaim_dirmod", 'Users of acfd_preppost'],
                             'hpc': ['Users of anshpc_pack'],
-                            'pre_post': ['Users of acfd_preppost', 'Users of acfdsol2', 'Users of cfd_base'],
-                            'solver': ['Users of cfd_base', 'Users of acfdsol2']
+                            'pre_post': ['Users of fluent_meshing:'],
+                            'solver': ['Users of cfd_solve_level1'],
+                            'base': ['Users of cfd_base'],
                             }
         self.license_dict = dict()              # record total number of license and how many left
         self.license_info = str()               # record the original license info from cmd
@@ -41,6 +42,9 @@ class LicenseUsage(object):
             for k, v in module_dict.items():                  # loop module_dict
                 for i in v:                                   # loop the list inside module_dict
                     self.check_usage(row, i, self.license_dict[k])
+
+        limit_license = ['pre_post', 'solver']
+        self.base_limit(limit_license)
         print(self.license_dict)
 
     def check_usage(self, info, flag, reserv_list):
@@ -57,6 +61,17 @@ class LicenseUsage(object):
             used_lic = int(info.split("of")[3][1])
             reserv_list[0] += total_lic
             reserv_list[1] += total_lic - used_lic
+
+    def base_limit(self, limit_license):
+        """
+        the under control license number cannot exceed the base number
+        :param limit_license:
+        :return:
+        """
+        base_limit = self.license_dict['base'][1]
+        for i in limit_license:
+            if self.license_dict[i][1] > base_limit:
+                self.license_dict[i][1] = base_limit
 
     def is_license(self, license_name):
         usable_license = self.license_dict[license_name][1]

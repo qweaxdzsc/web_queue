@@ -27,6 +27,12 @@ def api_add(request):
     return HttpResponse('post success')
 
 
+@csrf_exempt
+def api_test(request):
+    print('some one try to connect and success')
+    return HttpResponse('success')
+
+
 def api_history(request):
     account_email = request.GET.get('account_email')
     filter_dict = {
@@ -83,44 +89,55 @@ def api_relaunch(request):
 
 @csrf_exempt
 def api_upload(request):
-    if request.method == "POST":    # 请求方法为POST时，进行处理
-        print(request.POST)
-        print(type(request.POST))
-        file_list = request.FILES.getlist("file_list", None)    # 获取上传的文件，如果没有文件，则默认为None
+    if request.method == "POST":
+        # 获取上传的文件，如果没有文件，则默认为None
+        file_list = request.FILES.getlist("file_list", None)
         exec_file_name = request.POST.get('exec_file_name')
         user_name = request.POST.get('user_name')
         file_md5 = request.POST.getlist('file_md5')
+        result_folder = request.POST.get('result_folder')
+        # main_software = request.POST.get('main_software')
+        # extend_software = request.POST.get('extend_software')
         print('file list:', file_list)
         print('exec file name: ', exec_file_name)
         print('user_name : ', user_name)
         print('file_md5 : ', file_md5)
         if not file_list:
             return HttpResponse("no files for upload!")
+        # create folder for upload file
+        upload_store_path = "G:\CFD_share\queue_calculation"
         time_mark = time.strftime("%m%d%H%M%S")
         folder_name = os.path.splitext(file_list[0].name)[0]
-        folder = "G:\CFD_share\queue_calculation\%s_%s" % (folder_name, time_mark)  # make folder special
+        folder = "%s\%s_%s" % (upload_store_path, folder_name, time_mark)  # make folder special
         if not os.path.exists(folder):
             os.makedirs(folder)
+        # write file from upload list
         for file in file_list:
             file_path = os.path.join(folder, file.name)
             destination = open(file_path, 'wb+')  # 打开特定的文件进行二进制的写操作
-            for chunk in file.chunks():      # 分块写入文件
+            for chunk in file.chunks():  # 分块写入文件
                 destination.write(chunk)
             destination.close()
             if not os.path.exists(file_path):
                 return HttpResponse("file (%s) upload failed!" % file.name)
         # md5 verify file
+        # make result folder
+        if result_folder:
+            result_folder_path = f"{folder}\{result_folder}"
+            if not os.path.exists(result_folder_path):
+                os.makedirs(result_folder_path)
         # form data dict to submit mission to queue
+        main_software = "fluent191_solver"
         data_dict = {
-            "select_main_app": 'fluent191_solver',
-            "select_fluent191_solve": [],
+            "select_main_app": main_software,
+            "select_%s" % main_software: [],
             "input_local_file": folder + '\\' + exec_file_name,
             "user_name": user_name,
             "host_name": 'DL5FWYWG2',
             "local_ip": 'localhost',
             "total_cores": 28,
         }
-        request_dict = QueryDict('', mutable=True)              # update request data
+        request_dict = QueryDict('', mutable=True)  # update request data
         request_dict.update(data_dict)
         request.POST = request_dict
         api_add(request)
@@ -173,4 +190,3 @@ class HelpDoc(object):
             'pause': '是否停止整个队列，填写布尔值，例如"True"'
         }
         self.append(url, method, description)
-

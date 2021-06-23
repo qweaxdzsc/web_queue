@@ -214,10 +214,10 @@ def thread_strategy(threads_request, host_name, local_threads):
     mpi_host = []
     local_threads = int(local_threads) - 2          # leave 2 threads to be cautious
 
-    if local_threads >= threads_request and threads_request <= 12:
+    if local_threads >= threads_request and threads_request < 36:
         use_mpi = False
         mpi_host = []
-    elif threads_request <= 36:
+    elif threads_request == 36:
         with open('./other/cluster_info.csv', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:

@@ -3,6 +3,7 @@ from django.contrib import admin
 from . import models
 
 """
+password: abc=123456
 controls the display style in '/admin' website
 """
 

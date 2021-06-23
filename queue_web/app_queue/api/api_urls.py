@@ -8,6 +8,7 @@ app_name = 'app_queue'
 urlpatterns = [
     path(r'', api_views.help),
     path(r'add/', api_views.api_add),
+    path(r'test/', api_views.api_test),
     path(r'upload/', api_views.api_upload),
     path(r'account_history/', api_views.api_history),
     path(r'pause/', api_views.api_suspend),
